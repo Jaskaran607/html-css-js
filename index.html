@@ -1,0 +1,580 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Iron Man 3D Experience</title>
+  <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@400;700&family=Electrolize&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+  <style>
+    :root {
+      --iron-red: #ff0000;
+      --iron-gold: #FFD700;
+      --iron-dark: #0d0d0d;
+      --iron-light: #1a1a1a;
+    }
+    
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+    
+    body {
+      background-color: var(--iron-dark);
+      color: #fff;
+      font-family: 'Electrolize', sans-serif;
+      overflow-x: hidden;
+      line-height: 1.6;
+    }
+    
+    /* Header with animated arc reactor */
+    header {
+      background: linear-gradient(to right, #8B0000, var(--iron-red));
+      padding: 1.5rem;
+      text-align: center;
+      position: relative;
+      box-shadow: 0 0 20px var(--iron-red);
+    }
+    
+    header h1 {
+      margin: 0;
+      font-size: 2.8rem;
+      font-family: 'Orbitron', sans-serif;
+      text-shadow: 0 0 10px var(--iron-gold);
+      letter-spacing: 3px;
+    }
+    
+    .arc-reactor {
+      position: absolute;
+      top: 20px;
+      right: 30px;
+      width: 40px;
+      height: 40px;
+      border-radius: 50%;
+      background: radial-gradient(circle, #00ffff, #0066ff);
+      box-shadow: 0 0 15px #0066ff;
+      animation: pulse 2s infinite;
+    }
+    
+    @keyframes pulse {
+      0% { transform: scale(1); opacity: 0.8; }
+      50% { transform: scale(1.1); opacity: 1; }
+      100% { transform: scale(1); opacity: 0.8; }
+    }
+    
+    /* Hero section with parallax effect */
+    .hero {
+      position: relative;
+      height: 100vh;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      background: url('https://wallpapercave.com/wp/wp4460040.jpg') center/cover no-repeat fixed;
+      overflow: hidden;
+    }
+    
+    .hero-overlay {
+      background: linear-gradient(to bottom, rgba(0,0,0,0.7), rgba(0,0,0,0.9));
+      position: absolute;
+      top: 0; left: 0; right: 0; bottom: 0;
+    }
+    
+    .hero-content {
+      z-index: 2;
+      color: var(--iron-gold);
+      text-align: center;
+      padding: 2rem;
+      max-width: 800px;
+    }
+    
+    .hero-content h2 {
+      font-size: 3.5rem;
+      margin-bottom: 1rem;
+      text-shadow: 0 0 15px var(--iron-red);
+      font-family: 'Orbitron', sans-serif;
+    }
+    
+    .hero-content p {
+      font-size: 1.5rem;
+      margin-bottom: 2rem;
+    }
+    
+    .cta-button {
+      display: inline-block;
+      padding: 12px 30px;
+      background: linear-gradient(to right, var(--iron-red), #b30000);
+      color: white;
+      text-decoration: none;
+      font-weight: bold;
+      border-radius: 50px;
+      transition: all 0.3s;
+      border: 2px solid var(--iron-gold);
+      text-transform: uppercase;
+      letter-spacing: 1px;
+    }
+    
+    .cta-button:hover {
+      transform: translateY(-3px);
+      box-shadow: 0 5px 15px rgba(255, 0, 0, 0.4);
+    }
+    
+    /* 3D Model Viewer Section */
+    .model-section {
+      background-color: var(--iron-light);
+      padding: 4rem 2rem;
+      text-align: center;
+    }
+    
+    .model-container {
+      position: relative;
+      max-width: 1000px;
+      margin: 0 auto;
+      border: 3px solid var(--iron-gold);
+      border-radius: 10px;
+      overflow: hidden;
+      box-shadow: 0 0 30px rgba(255, 215, 0, 0.3);
+    }
+    
+    iframe.model-viewer {
+      width: 100%;
+      height: 600px;
+      border: none;
+    }
+    
+    /* Suit Gallery with hover effects */
+    .gallery {
+      padding: 4rem 2rem;
+      background-color: var(--iron-dark);
+    }
+    
+    .section-title {
+      text-align: center;
+      margin-bottom: 3rem;
+      font-family: 'Orbitron', sans-serif;
+      color: var(--iron-gold);
+      text-shadow: 0 0 10px var(--iron-red);
+      font-size: 2.5rem;
+      position: relative;
+    }
+    
+    .section-title::after {
+      content: '';
+      display: block;
+      width: 100px;
+      height: 3px;
+      background: linear-gradient(to right, var(--iron-red), var(--iron-gold));
+      margin: 15px auto;
+    }
+    
+    .suit-gallery {
+      display: flex;
+      flex-wrap: wrap;
+      justify-content: center;
+      gap: 20px;
+      max-width: 1200px;
+      margin: 0 auto;
+    }
+    
+    .suit-card {
+      position: relative;
+      width: 280px;
+      height: 350px;
+      overflow: hidden;
+      border-radius: 10px;
+      transition: all 0.3s;
+      border: 2px solid var(--iron-gold);
+    }
+    
+    .suit-card:hover {
+      transform: translateY(-10px);
+      box-shadow: 0 10px 20px rgba(255, 0, 0, 0.3);
+    }
+    
+    .suit-card img {
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+      transition: transform 0.5s;
+    }
+    
+    .suit-card:hover img {
+      transform: scale(1.1);
+    }
+    
+    .suit-info {
+      position: absolute;
+      bottom: 0;
+      left: 0;
+      right: 0;
+      background: linear-gradient(to top, rgba(0,0,0,0.9), transparent);
+      padding: 20px;
+      color: white;
+      transform: translateY(100%);
+      transition: transform 0.3s;
+    }
+    
+    .suit-card:hover .suit-info {
+      transform: translateY(0);
+    }
+    
+    /* Tech Specs with animated HUD */
+    .tech {
+      padding: 4rem 2rem;
+      background-color: var(--iron-light);
+      position: relative;
+      overflow: hidden;
+    }
+    
+    .tech::before {
+      content: '';
+      position: absolute;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      background: 
+        linear-gradient(90deg, var(--iron-light) 21px, transparent 1%) center,
+        linear-gradient(var(--iron-light) 21px, transparent 1%) center,
+        #555;
+      background-size: 22px 22px;
+      opacity: 0.1;
+    }
+    
+    .tech-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+      gap: 30px;
+      max-width: 1200px;
+      margin: 0 auto;
+      position: relative;
+      z-index: 1;
+    }
+    
+    .tech-item {
+      background: rgba(0,0,0,0.7);
+      border: 1px solid var(--iron-gold);
+      border-radius: 5px;
+      padding: 2rem;
+      transition: all 0.3s;
+      position: relative;
+      overflow: hidden;
+    }
+    
+    .tech-item:hover {
+      transform: translateY(-5px);
+      box-shadow: 0 5px 15px rgba(255, 215, 0, 0.2);
+    }
+    
+    .tech-item::before {
+      content: '';
+      position: absolute;
+      top: 0;
+      left: 0;
+      width: 5px;
+      height: 100%;
+      background: var(--iron-red);
+    }
+    
+    .tech-item h3 {
+      color: var(--iron-gold);
+      margin-bottom: 1rem;
+      font-family: 'Orbitron', sans-serif;
+    }
+    
+    /* Contact Form styled as S.H.I.E.L.D. terminal */
+    .contact {
+      padding: 4rem 2rem;
+      background-color: var(--iron-dark);
+    }
+    
+    .contact-form {
+      max-width: 600px;
+      margin: 0 auto;
+      background: rgba(10, 10, 20, 0.8);
+      padding: 2rem;
+      border-radius: 5px;
+      border: 1px solid #444;
+      box-shadow: 0 0 20px rgba(0, 100, 255, 0.1);
+    }
+    
+    .form-group {
+      margin-bottom: 1.5rem;
+    }
+    
+    .form-group label {
+      display: block;
+      margin-bottom: 0.5rem;
+      color: var(--iron-gold);
+      font-family: 'Orbitron', sans-serif;
+    }
+    
+    .form-control {
+      width: 100%;
+      padding: 12px;
+      background-color: rgba(30, 30, 30, 0.8);
+      border: 1px solid #444;
+      color: #fff;
+      font-family: 'Electrolize', sans-serif;
+      border-radius: 3px;
+      transition: all 0.3s;
+    }
+    
+    .form-control:focus {
+      outline: none;
+      border-color: var(--iron-gold);
+      box-shadow: 0 0 10px rgba(255, 215, 0, 0.3);
+    }
+    
+    textarea.form-control {
+      min-height: 150px;
+      resize: vertical;
+    }
+    
+    .submit-btn {
+      background: linear-gradient(to right, var(--iron-red), #8B0000);
+      color: white;
+      border: none;
+      padding: 12px 30px;
+      font-family: 'Orbitron', sans-serif;
+      font-size: 1rem;
+      cursor: pointer;
+      border-radius: 3px;
+      transition: all 0.3s;
+      text-transform: uppercase;
+      letter-spacing: 1px;
+      width: 100%;
+    }
+    
+    .submit-btn:hover {
+      background: linear-gradient(to right, #8B0000, var(--iron-red));
+      box-shadow: 0 0 15px rgba(255, 0, 0, 0.5);
+    }
+    
+    /* Footer with animated Stark Industries logo */
+    footer {
+      background-color: #000;
+      padding: 2rem;
+      text-align: center;
+      border-top: 1px solid #333;
+    }
+    
+    .stark-logo {
+      width: 150px;
+      margin-bottom: 1rem;
+      filter: drop-shadow(0 0 5px var(--iron-red));
+      animation: logoGlow 3s infinite alternate;
+    }
+    
+    @keyframes logoGlow {
+      from { filter: drop-shadow(0 0 5px var(--iron-red)); }
+      to { filter: drop-shadow(0 0 15px var(--iron-red)); }
+    }
+    
+    .social-links {
+      margin: 1rem 0;
+    }
+    
+    .social-links a {
+      color: #aaa;
+      font-size: 1.5rem;
+      margin: 0 10px;
+      transition: all 0.3s;
+    }
+    
+    .social-links a:hover {
+      color: var(--iron-gold);
+    }
+    
+    /* Responsive Design */
+    @media (max-width: 768px) {
+      header h1 {
+        font-size: 2rem;
+      }
+      
+      .hero-content h2 {
+        font-size: 2.5rem;
+      }
+      
+      .suit-gallery {
+        grid-template-columns: 1fr;
+      }
+      
+      .model-container {
+        height: 400px;
+      }
+    }
+    
+    /* HUD Animations */
+    .hud-line {
+      position: fixed;
+      height: 1px;
+      background: rgba(0, 255, 255, 0.3);
+      animation: hudScan 8s linear infinite;
+      z-index: 100;
+      pointer-events: none;
+    }
+    
+    @keyframes hudScan {
+      0% { top: 0%; opacity: 0; }
+      5% { opacity: 1; }
+      95% { opacity: 1; }
+      100% { top: 100%; opacity: 0; }
+    }
+  </style>
+</head>
+<body>
+  <!-- Animated HUD Elements -->
+  <div class="hud-line" style="top: 20%; width: 100%;"></div>
+  <div class="hud-line" style="top: 50%; width: 80%; left: 10%;"></div>
+  <div class="hud-line" style="top: 70%; width: 60%; left: 20%;"></div>
+
+  <header>
+    <div class="arc-reactor"></div>
+    <h1>IRON MAN ARMORY</h1>
+  </header>
+
+  <section class="hero">
+    <div class="hero-overlay"></div>
+    <div class="hero-content">
+      <h2>MARK LXXXV NANOTECH SUIT</h2>
+      <p>Experience Tony Stark's masterpiece in interactive 3D</p>
+      <a href="#model" class="cta-button">EXPLORE SUIT</a>
+    </div>
+  </section>
+
+  <section id="model" class="model-section">
+    <h2 class="section-title">3D SUIT INTERFACE</h2>
+    <div class="model-container">
+      <iframe class="model-viewer" src="https://sketchfab.com/models/48faaa0654a04ce7bcf932aa0d792a58/embed" frameborder="0" allow="autoplay; fullscreen; vr" mozallowfullscreen="true" webkitallowfullscreen="true"></iframe>
+    </div>
+  </section>
+
+  <section class="gallery">
+    <h2 class="section-title">SUIT EVOLUTION</h2>
+    <div class="suit-gallery">
+      <div class="suit-card">
+        <img src="https://i.pinimg.com/originals/5e/94/34/5e94340d98f013cfc3ab88ce331d87e4.jpg" alt="Mark I">
+        <div class="suit-info">
+          <h3>MARK I</h3>
+          <p>Built in a cave with a box of scraps</p>
+        </div>
+      </div>
+      <div class="suit-card">
+        <img src="https://i.pinimg.com/originals/c2/3b/58/c23b58ee391cf2c1ad30eb1eb7c51d6a.jpg" alt="Mark III">
+        <div class="suit-info">
+          <h3>MARK III</h3>
+          <p>First red and gold armor with flight capability</p>
+        </div>
+      </div>
+      <div class="suit-card">
+        <img src="https://wallpapercave.com/wp/wp7018795.jpg" alt="Mark XLII">
+        <div class="suit-info">
+          <h3>MARK XLII</h3>
+          <p>Autonomous prehensile armor with modular design</p>
+        </div>
+      </div>
+      <div class="suit-card">
+        <img src="https://wallpapercave.com/wp/wp1917134.jpg" alt="Mark L">
+        <div class="suit-info">
+          <h3>MARK L</h3>
+          <p>First nanotech suit with instant deployment</p>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <section class="tech">
+    <h2 class="section-title">TECH SPECIFICATIONS</h2>
+    <div class="tech-grid">
+      <div class="tech-item">
+        <h3>ARC REACTOR</h3>
+        <p>Palladium core (later vibranium) providing clean energy for all suit systems with output of 8 GJ/s.</p>
+      </div>
+      <div class="tech-item">
+        <h3>NANOTECH ARMOR</h3>
+        <p>Self-assembling molecular armor with instant deployment and adaptive damage control.</p>
+      </div>
+      <div class="tech-item">
+        <h3>REPULSOR TECH</h3>
+        <p>Dual palm-mounted particle beam weapons capable of 3 megajoule pulses at 20Hz.</p>
+      </div>
+      <div class="tech-item">
+        <h3>FLIGHT SYSTEMS</h3>
+        <p>Boot-mounted repulsors provide Mach 3+ flight with inertial dampeners and stabilization.</p>
+      </div>
+      <div class="tech-item">
+        <h3>FRIDAY AI</h3>
+        <p>Advanced tactical AI assistant with predictive combat algorithms and system management.</p>
+      </div>
+      <div class="tech-item">
+        <h3>ENERGY SHIELDS</h3>
+        <p>Projected plasma shields capable of withstanding tank rounds and energy weapons.</p>
+      </div>
+    </div>
+  </section>
+
+  <section class="contact">
+    <h2 class="section-title">AVENGERS INITIATIVE</h2>
+    <form class="contact-form">
+      <div class="form-group">
+        <label for="name">AGENT NAME</label>
+        <input type="text" id="name" class="form-control" placeholder="Enter codename" required>
+      </div>
+      <div class="form-group">
+        <label for="email">SECURE CHANNEL</label>
+        <input type="email" id="email" class="form-control" placeholder="Enter encrypted frequency" required>
+      </div>
+      <div class="form-group">
+        <label for="message">MISSION BRIEFING</label>
+        <textarea id="message" class="form-control" placeholder="State your qualifications for the Avengers Initiative" required></textarea>
+      </div>
+      <button type="submit" class="submit-btn">SUBMIT TO S.H.I.E.L.D.</button>
+    </form>
+  </section>
+
+  <footer>
+    <img src="https://logos-world.net/wp-content/uploads/2023/05/Stark-Industries-Logo.png" alt="Stark Industries" class="stark-logo">
+    <p>"Sometimes you gotta run before you can walk." - Tony Stark</p>
+    <div class="social-links">
+      <a href="#"><i class="fab fa-facebook"></i></a>
+      <a href="#"><i class="fab fa-twitter"></i></a>
+      <a href="#"><i class="fab fa-instagram"></i></a>
+      <a href="#"><i class="fab fa-youtube"></i></a>
+    </div>
+    <p>&copy; 2023 Stark Industries. All rights reserved.</p>
+  </footer>
+
+  <script>
+    // Add interactive elements
+    document.addEventListener('DOMContentLoaded', function() {
+      // Animate suit cards on scroll
+      const suitCards = document.querySelectorAll('.suit-card');
+      
+      const observer = new IntersectionObserver((entries) => {
+        entries.forEach(entry => {
+          if (entry.isIntersecting) {
+            entry.target.style.opacity = 1;
+            entry.target.style.transform = 'translateY(0)';
+          }
+        });
+      }, { threshold: 0.1 });
+      
+      suitCards.forEach(card => {
+        card.style.opacity = 0;
+        card.style.transform = 'translateY(50px)';
+        card.style.transition = 'all 0.5s ease-out';
+        observer.observe(card);
+      });
+      
+      // Form submission
+      const contactForm = document.querySelector('.contact-form');
+      contactForm.addEventListener('submit', function(e) {
+        e.preventDefault();
+        alert('Message received by S.H.I.E.L.D. Headquarters. Standby for response.');
+        this.reset();
+      });
+    });
+  </script>
+</body>
+</html>
