@@ -1,0 +1,464 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Iron Man 3D Experience</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/three@0.128.0/examples/js/controls/OrbitControls.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/three@0.128.0/examples/js/loaders/GLTFLoader.min.js"></script>
+    <style>
+        body {
+            margin: 0;
+            overflow-x: hidden;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background-color: #000;
+            color: #fff;
+        }
+        
+        #canvas-container {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            z-index: -1;
+        }
+        
+        .content {
+            position: relative;
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            padding: 2rem;
+            z-index: 1;
+        }
+        
+        .title {
+            font-size: clamp(2rem, 5vw, 4rem);
+            font-weight: 700;
+            color: #ff4d4d;
+            text-shadow: 0 0 10px rgba(255, 77, 77, 0.7);
+            margin-bottom: 1rem;
+            animation: pulse 2s infinite, shaker 0.5s infinite;
+            display: inline-block;
+        }
+
+        .title:hover {
+            animation: pulse 2s infinite, shaker 0.3s infinite;
+        }
+        
+        @keyframes pulse {
+            0% { text-shadow: 0 0 10px rgba(255, 77, 77, 0.7); }
+            50% { text-shadow: 0 0 20px rgba(255, 77, 77, 1); }
+            100% { text-shadow: 0 0 10px rgba(255, 77, 77, 0.7); }
+        }
+
+        @keyframes shaker {
+            0% { transform: translateX(0) rotate(0deg); }
+            25% { transform: translateX(-5px) rotate(-1deg); }
+            50% { transform: translateX(5px) rotate(1deg); }
+            75% { transform: translateX(-5px) rotate(-1deg); }
+            100% { transform: translateX(0) rotate(0deg); }
+        }
+        
+        .subtitle {
+            font-size: clamp(1rem, 2vw, 1.5rem);
+            color: #fff;
+            margin-bottom: 2rem;
+            text-align: center;
+            max-width: 800px;
+            display: inline-block;
+            transition: transform 0.3s ease;
+        }
+
+        .subtitle:hover {
+            animation: shaker 0.5s;
+        }
+        
+        .nav {
+            display: flex;
+            gap: 1rem;
+            margin-bottom: 2rem;
+            flex-wrap: wrap;
+            justify-content: center;
+        }
+        
+        .nav-btn {
+            padding: 0.75rem 1.5rem;
+            background: rgba(255, 77, 77, 0.2);
+            border: 1px solid #ff4d4d;
+            color: white;
+            border-radius: 5px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            font-weight: 600;
+        }
+        
+        .nav-btn:hover {
+            background: #ff4d4d;
+            transform: translateY(-3px);
+        }
+        
+        .info-section {
+            background: rgba(0, 0, 0, 0.7);
+            border-radius: 15px;
+            padding: 2rem;
+            margin-top: 1rem;
+            max-width: 800px;
+            display: none;
+        }
+        
+        .info-section.active {
+            display: block;
+            animation: fadeIn 0.5s ease;
+        }
+        
+        .hologram-container {
+            position: relative;
+            width: 300px;
+            height: 400px;
+            margin: 2rem auto;
+            perspective: 1000px;
+        }
+
+        .hologram {
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(135deg, rgba(0,200,255,0.2) 0%, rgba(255,50,50,0.2) 100%);
+            border-radius: 10px;
+            border: 1px solid rgba(255,255,255,0.1);
+            box-shadow: 0 0 20px rgba(0,200,255,0.5),
+                        inset 0 0 20px rgba(255,50,50,0.3);
+            animation: float 6s ease-in-out infinite, glow 2s ease-in-out infinite alternate;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            overflow: hidden;
+        }
+
+        @keyframes float {
+            0% { transform: translateY(0px); }
+            50% { transform: translateY(-20px); }
+            100% { transform: translateY(0px); }
+        }
+
+        @keyframes glow {
+            from { box-shadow: 0 0 20px rgba(0,200,255,0.5); }
+            to { box-shadow: 0 0 30px rgba(255,50,50,0.7); }
+        }
+
+        .hologram-img {
+            width: 80%;
+            filter: drop-shadow(0 0 10px rgba(0,200,255,0.7));
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(20px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+        
+        .suit-card {
+            background: rgba(20, 20, 20, 0.8);
+            border-radius: 10px;
+            overflow: hidden;
+            margin: 1rem 0;
+            transition: all 0.3s ease;
+        }
+        
+        .suit-card:hover {
+            transform: scale(1.03);
+            box-shadow: 0 0 20px rgba(255, 77, 77, 0.5);
+        }
+        
+        .suit-image {
+            width: 100%;
+            height: 200px;
+            background: #111;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+        
+        .suit-info {
+            padding: 1.5rem;
+        }
+        
+        .responsive-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 1.5rem;
+            width: 100%;
+        }
+        
+        .footer {
+            margin-top: 4rem;
+            text-align: center;
+            padding: 1rem;
+            background: rgba(0, 0, 0, 0.5);
+            width: 100%;
+        }
+        
+        @media (max-width: 768px) {
+            .content {
+                padding: 1rem;
+            }
+            
+            .nav {
+                flex-direction: column;
+                align-items: center;
+            }
+            
+            .info-section {
+                padding: 1rem;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div id="canvas-container"></div>
+    
+    <div class="content">
+        <h1 class="title">IRON MAN</h1>
+        <p class="subtitle">Experience the Legendary Armor in 3D - Interactive Showcase of Tony Stark's Technological Marvels</p>
+        
+        <div class="hologram-container">
+            <div class="hologram">
+                <img src="https://storage.googleapis.com/workspace-0f70711f-8b4e-4d94-86f1-2a93ccde5887/image/032283fa-b2dc-4c26-afb2-4186a6f7d203.png" alt="3D holographic projection of Iron Man armor" class="hologram-img">
+            </div>
+        </div>
+        
+        <div class="nav">
+            <button class="nav-btn" onclick="showSection('about')">About</button>
+            <button class="nav-btn" onclick="showSection('suits')">Armor Suits</button>
+            <button class="nav-btn" onclick="showSection('tech')">Technology</button>
+            <button class="nav-btn" onclick="showSection('gallery')">Gallery</button>
+        </div>
+        
+        <div id="about" class="info-section">
+            <h2 class="text-2xl font-bold mb-4 text-red-500">THE IRON LEGEND</h2>
+            <p>Tony Stark, the genius inventor and industrialist, created the Iron Man armor to escape captivity and fight against those who would use his weapons for evil. What started as a means of survival became a symbol of hope and technological advancement.</p>
+            <p class="mt-4">This interactive experience lets you explore the evolution of the Iron Man suits, their groundbreaking technology, and the legacy of Earth's mightiest hero.</p>
+            
+            <div class="flex justify-center mt-6">
+                <img src="https://storage.googleapis.com/workspace-0f70711f-8b4e-4d94-86f1-2a93ccde5887/image/c7068158-f479-4045-83a7-cc5d4a5a42bd.png" alt="Tony Stark in his workshop surrounded by holograms of armor designs and blueprints" class="rounded-lg shadow-lg">
+            </div>
+        </div>
+        
+        <div id="suits" class="info-section">
+            <h2 class="text-2xl font-bold mb-6 text-red-500">ARMOR EVOLUTION</h2>
+            
+            <div class="responsive-grid">
+                <div class="suit-card">
+                    <div class="suit-image">
+                        <img src="https://storage.googleapis.com/workspace-0f70711f-8b4e-4d94-86f1-2a93ccde5887/image/0bbcda55-73c5-498a-b20d-6ba283cb019c.png" alt="Mark I armor - the first Iron Man suit, bulky and painted silver with exposed mechanical parts">
+                    </div>
+                    <div class="suit-info">
+                        <h3 class="text-xl font-bold">Mark I</h3>
+                        <p class="text-gray-300 mt-2">The original suit built in a cave with salvaged weapons parts. Crude but effective.</p>
+                    </div>
+                </div>
+                
+                <div class="suit-card">
+                    <div class="suit-image">
+                        <img src="https://storage.googleapis.com/workspace-0f70711f-8b4e-4d94-86f1-2a93ccde5887/image/cc33f711-b419-4bdb-bfe3-ef0a540ac2ff.png" alt="Mark III armor - iconic red and gold plating with smooth surfaces and classic design">
+                    </div>
+                    <div class="suit-info">
+                        <h3 class="text-xl font-bold">Mark III</h3>
+                        <p class="text-gray-300 mt-2">First fully functional battle-ready suit with weapons system and flight capability.</p>
+                    </div>
+                </div>
+                
+                <div class="suit-card">
+                    <div class="suit-image">
+                        <img src="https://storage.googleapis.com/workspace-0f70711f-8b4e-4d94-86f1-2a93ccde5887/image/2e09a755-ce02-47d0-a12a-9c7e39a7e261.png" alt="Mark VII armor - modular design with advanced targeting system and enhanced repulsors">
+                    </div>
+                    <div class="suit-info">
+                        <h3 class="text-xl font-bold">Mark VII</h3>
+                        <p class="text-gray-300 mt-2">Advanced modular armor with independent power supply and quick-deploy system.</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <div id="tech" class="info-section">
+            <h2 class="text-2xl font-bold mb-6 text-red-500">CUTTING-EDGE TECHNOLOGY</h2>
+            
+            <div class="bg-gray-900 p-6 rounded-lg mb-6">
+                <h3 class="text-xl font-bold text-red-400 mb-3">Arc Reactor Technology</h3>
+                <p>Compact clean energy source that powers the suits indefinitely. The reactor miniaturization was Stark's breakthrough invention.</p>
+            </div>
+            
+            <div class="bg-gray-900 p-6 rounded-lg mb-6">
+                <h3 class="text-xl font-bold text-red-400 mb-3">Repulsor Technology</h3>
+                <p>Dual-purpose energy emitters providing propulsion and offensive capabilities, capable of both precision laser cutting and armor-piercing blasts.</p>
+            </div>
+            
+            <div class="bg-gray-900 p-6 rounded-lg">
+                <h3 class="text-xl font-bold text-red-400 mb-3">Friday AI System</h3>
+                <p>Advanced artificial intelligence interface that provides real-time tactical analysis, suit diagnostics, and mission support.</p>
+            </div>
+            
+            <div class="mt-8 flex justify-center">
+                <img src="https://storage.googleapis.com/workspace-0f70711f-8b4e-4d94-86f1-2a93ccde5887/image/52308937-bdb6-468d-8c56-a1d53d86a756.png" alt="3D holographic interface showing technical schematics of repulsor technology and energy output metrics" class="rounded-lg shadow-lg">
+            </div>
+        </div>
+        
+        <div id="gallery" class="info-section">
+            <h2 class="text-2xl font-bold mb-6 text-red-500">ARMORY GALLERY</h2>
+            
+            <div class="responsive-grid">
+                <div>
+                    <img src="https://storage.googleapis.com/workspace-0f70711f-8b4e-4d94-86f1-2a93ccde5887/image/8c276f93-b3cf-4953-a7f0-3d23c765e4d4.png" alt="Iron Man suit in flight formation with glowing repulsors and trail of energy" class="w-full h-auto rounded-lg shadow-lg hover:scale-105 transition-transform">
+                </div>
+                <div>
+                    <img src="https://storage.googleapis.com/workspace-0f70711f-8b4e-4d94-86f1-2a93ccde5887/image/8c1275cc-ff34-4383-9b8b-a17082a5aa68.png" alt="Close-up of helmet faceplate opening with mechanical sliding plates revealing interior" class="w-full h-auto rounded-lg shadow-lg hover:scale-105 transition-transform">
+                </div>
+                <div>
+                    <img src="https://storage.googleapis.com/workspace-0f70711f-8b4e-4d94-86f1-2a93ccde5887/image/07258dc3-78b4-4a0e-b1bc-6dc0d4918e2f.png" alt="Engineering workshop with multiple suits in various states of assembly and repair" class="w-full h-auto rounded-lg shadow-lg hover:scale-105 transition-transform">
+                </div>
+            </div>
+        </div>
+        
+        <div class="footer">
+            <p>© Stark Industries - "The Future is Here"</p>
+        </div>
+    </div>
+    
+    <script>
+        // Default active section
+        document.addEventListener('DOMContentLoaded', function() {
+            showSection('about');
+            init3DScene();
+        });
+        
+        function showSection(sectionId) {
+            // Hide all sections
+            document.querySelectorAll('.info-section').forEach(section => {
+                section.classList.remove('active');
+            });
+            
+            // Show selected section
+            document.getElementById(sectionId).classList.add('active');
+        }
+        
+        function init3DScene() {
+            // Create hologram effect
+            const hologramGeometry = new THREE.PlaneGeometry(3, 4);
+            const hologramMaterial = new THREE.MeshBasicMaterial({
+                color: 0x00aaff,
+                transparent: true,
+                opacity: 0.2,
+                side: THREE.DoubleSide
+            });
+            const hologram = new THREE.Mesh(hologramGeometry, hologramMaterial);
+            hologram.position.set(0, 0, -5);
+            scene.add(hologram);
+            // Set up Three.js scene
+            const container = document.getElementById('canvas-container');
+            const scene = new THREE.Scene();
+            const camera = new THREE.PerspectiveCamera(75, window.innerWidth / window.innerHeight, 0.1, 1000);
+            const renderer = new THREE.WebGLRenderer({ alpha: true });
+            
+            renderer.setSize(window.innerWidth, window.innerHeight);
+            container.appendChild(renderer.domElement);
+            
+            // Add a subtle particle effect (stars)
+            const particles = new THREE.BufferGeometry;
+            const particleCount = 1000;
+            
+            const positions = new Float32Array(particleCount * 3);
+            const sizes = new Float32Array(particleCount);
+            
+            for(let i = 0; i < particleCount; i++) {
+                positions[i * 3] = (Math.random() - 0.5) * 2000;
+                positions[i * 3 + 1] = (Math.random() - 0.5) * 2000;
+                positions[i * 3 + 2] = (Math.random() - 0.5) * 2000;
+                
+                sizes[i] = Math.random() * 2;
+            }
+            
+            particles.setAttribute('position', new THREE.BufferAttribute(positions, 3));
+            particles.setAttribute('size', new THREE.BufferAttribute(sizes, 1));
+            
+            const particleMaterial = new THREE.PointsMaterial({
+                color: 0xffffff,
+                size: 1,
+                transparent: true,
+                opacity: 0.8
+            });
+            
+            const particleSystem = new THREE.Points(particles, particleMaterial);
+            scene.add(particleSystem);
+            
+            // Add ambient light
+            const ambientLight = new THREE.AmbientLight(0x404040);
+            scene.add(ambientLight);
+            
+            // Add directional light (like arc reactor glow)
+            const directionalLight = new THREE.DirectionalLight(0x00aaff, 0.4);
+            directionalLight.position.set(0, 1, 0);
+            scene.add(directionalLight);
+            
+            // Add spot light (repulsor glow effect)
+            const spotLight = new THREE.SpotLight(0xff4d4d, 0.7);
+            spotLight.position.set(0, 0, 100);
+            spotLight.castShadow = true;
+            scene.add(spotLight);
+            
+            // Camera position and controls
+            camera.position.z = 30;
+            const controls = new THREE.OrbitControls(camera, renderer.domElement);
+            controls.enableZoom = false;
+            controls.autoRotate = true;
+            controls.autoRotateSpeed = 0.5;
+            
+            // Animation loop
+            function animate() {
+                requestAnimationFrame(animate);
+                
+                // Rotate particles
+                particleSystem.rotation.x += 0.0001;
+                particleSystem.rotation.y += 0.0001;
+                
+                controls.update();
+                renderer.render(scene, camera);
+            }
+            
+            animate();
+            
+            // Handle window resize
+            window.addEventListener('resize', function() {
+                camera.aspect = window.innerWidth / window.innerHeight;
+                camera.updateProjectionMatrix();
+                renderer.setSize(window.innerWidth, window.innerHeight);
+            });
+            
+            // Simulate arc reactor effect
+            let intensityDirection = 1;
+            setInterval(() => {
+                if (directionalLight.intensity > 0.6) intensityDirection = -1;
+                if (directionalLight.intensity < 0.4) intensityDirection = 1;
+                directionalLight.intensity += 0.01 * intensityDirection;
+            }, 100);
+            
+            // Add interactive hover effects for sections
+            const sections = document.querySelectorAll('.info-section');
+            
+            sections.forEach(section => {
+                section.addEventListener('mouseenter', () => {
+                    spotLight.position.set(
+                        Math.random() * 100 - 50,
+                        Math.random() * 100 - 50,
+                        Math.random() * 100 + 20
+                    );
+                });
+            });
+        }
+    </script>
+</body>
+</html>
+
