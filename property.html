@@ -1,0 +1,1818 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>PropertyHub - Find Your Dream Home</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <style>
+        .property-card {
+            transition: transform 0.3s ease, box-shadow 0.3s ease;
+        }
+        .property-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04);
+        }
+        .filter-slide {
+            transition: all 0.3s ease;
+        }
+        .gallery-modal {
+            backdrop-filter: blur(10px);
+        }
+        .image-gallery {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 10px;
+        }
+        .hero-bg {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        }
+        .search-box {
+            backdrop-filter: blur(10px);
+            background: rgba(255, 255, 255, 0.95);
+        }
+        .badge {
+            animation: pulse 2s infinite;
+        }
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(20px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+        .fade-in {
+            animation: fadeIn 0.6s ease-out;
+        }
+    </style>
+</head>
+<body class="bg-gray-50">
+    <!-- Navigation -->
+    <nav class="bg-white shadow-lg fixed w-full top-0 z-50">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="flex justify-between items-center h-16">
+                <div class="flex items-center">
+                    <div class="text-2xl font-bold text-blue-600">🏠 PropertyHub</div>
+                </div>
+                
+                <div class="hidden md:flex items-center space-x-8">
+                    <a href="#" onclick="showSection('home')" class="text-gray-700 hover:text-blue-600 font-medium">Home</a>
+                    <a href="#" onclick="showSection('properties')" class="text-gray-700 hover:text-blue-600 font-medium">Properties</a>
+                    <a href="#" onclick="showSection('about')" class="text-gray-700 hover:text-blue-600 font-medium">About</a>
+                    <a href="#" onclick="showSection('contact')" class="text-gray-700 hover:text-blue-600 font-medium">Contact</a>
+                </div>
+                
+                <div class="flex items-center space-x-4">
+                    <button onclick="showLoginModal()" class="text-gray-700 hover:text-blue-600 font-medium">Login</button>
+                    <button onclick="showRegisterModal()" class="bg-blue-600 text-white px-4 py-2 rounded-lg hover:bg-blue-700 font-medium">Sign Up</button>
+                    <div id="userMenu" class="hidden flex items-center space-x-4">
+                        <span id="userName" class="text-gray-700 font-medium"></span>
+                        <button onclick="showSection('dashboard')" class="text-blue-600 hover:text-blue-700 font-medium">Dashboard</button>
+                        <button onclick="logout()" class="text-gray-700 hover:text-red-600 font-medium">Logout</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </nav>
+
+    <!-- Home Section -->
+    <div id="homeSection" class="section-content">
+        <!-- Hero Section -->
+        <div class="hero-bg pt-16 pb-20">
+            <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 pt-20">
+                <div class="text-center">
+                    <h1 class="text-5xl font-bold text-white mb-6">Find Your Dream Home</h1>
+                    <p class="text-xl text-white mb-12 max-w-2xl mx-auto">Discover the perfect property for buying or renting with our comprehensive search platform</p>
+                    
+                    <!-- Search Box -->
+                    <div class="search-box max-w-4xl mx-auto p-6 rounded-2xl shadow-2xl">
+                        <div class="grid grid-cols-1 md:grid-cols-4 gap-4 mb-4">
+                            <div>
+                                <label class="block text-sm font-medium text-gray-700 mb-2">Location</label>
+                                <input type="text" id="searchLocation" placeholder="Enter city or area" 
+                                       class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500">
+                            </div>
+                            <div>
+                                <label class="block text-sm font-medium text-gray-700 mb-2">Property Type</label>
+                                <select id="searchType" class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500">
+                                    <option value="">All Types</option>
+                                    <option value="house">House</option>
+                                    <option value="apartment">Apartment</option>
+                                    <option value="condo">Condo</option>
+                                    <option value="villa">Villa</option>
+                                </select>
+                            </div>
+                            <div>
+                                <label class="block text-sm font-medium text-gray-700 mb-2">Price Range</label>
+                                <select id="searchPrice" class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500">
+                                    <option value="">Any Price</option>
+                                    <option value="0-100000">Under $100k</option>
+                                    <option value="100000-300000">$100k - $300k</option>
+                                    <option value="300000-500000">$300k - $500k</option>
+                                    <option value="500000-1000000">$500k - $1M</option>
+                                    <option value="1000000+">$1M+</option>
+                                </select>
+                            </div>
+                            <div>
+                                <label class="block text-sm font-medium text-gray-700 mb-2">Bedrooms</label>
+                                <select id="searchBedrooms" class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500">
+                                    <option value="">Any</option>
+                                    <option value="1">1+</option>
+                                    <option value="2">2+</option>
+                                    <option value="3">3+</option>
+                                    <option value="4">4+</option>
+                                </select>
+                            </div>
+                        </div>
+                        <button onclick="searchProperties()" class="w-full bg-blue-600 text-white py-4 rounded-lg hover:bg-blue-700 font-semibold text-lg transition duration-300">
+                            🔍 Search Properties
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Featured Properties -->
+        <div class="py-20 bg-white">
+            <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+                <div class="text-center mb-16">
+                    <h2 class="text-4xl font-bold text-gray-900 mb-4">Featured Properties</h2>
+                    <p class="text-xl text-gray-600">Handpicked properties just for you</p>
+                </div>
+                
+                <div id="featuredProperties" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
+                    <!-- Featured properties will be loaded here -->
+                </div>
+            </div>
+        </div>
+
+        <!-- Stats Section -->
+        <div class="py-20 bg-gray-100">
+            <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+                <div class="grid grid-cols-1 md:grid-cols-4 gap-8 text-center">
+                    <div class="bg-white p-8 rounded-xl shadow-lg">
+                        <div class="text-4xl font-bold text-blue-600 mb-2">1,200+</div>
+                        <div class="text-gray-600">Properties Listed</div>
+                    </div>
+                    <div class="bg-white p-8 rounded-xl shadow-lg">
+                        <div class="text-4xl font-bold text-green-600 mb-2">850+</div>
+                        <div class="text-gray-600">Happy Customers</div>
+                    </div>
+                    <div class="bg-white p-8 rounded-xl shadow-lg">
+                        <div class="text-4xl font-bold text-purple-600 mb-2">50+</div>
+                        <div class="text-gray-600">Cities Covered</div>
+                    </div>
+                    <div class="bg-white p-8 rounded-xl shadow-lg">
+                        <div class="text-4xl font-bold text-red-600 mb-2">24/7</div>
+                        <div class="text-gray-600">Customer Support</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Properties Section -->
+    <div id="propertiesSection" class="section-content hidden pt-16">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
+            <div class="flex flex-col lg:flex-row gap-8">
+                <!-- Filters Sidebar -->
+                <div class="lg:w-1/4">
+                    <div class="bg-white p-6 rounded-xl shadow-lg sticky top-24">
+                        <h3 class="text-xl font-bold text-gray-900 mb-6">Filter Properties</h3>
+                        
+                        <div class="space-y-6">
+                            <div>
+                                <label class="block text-sm font-medium text-gray-700 mb-2">Location</label>
+                                <input type="text" id="filterLocation" placeholder="Enter location" 
+                                       class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500">
+                            </div>
+                            
+                            <div>
+                                <label class="block text-sm font-medium text-gray-700 mb-2">Property Type</label>
+                                <select id="filterType" class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500">
+                                    <option value="">All Types</option>
+                                    <option value="house">House</option>
+                                    <option value="apartment">Apartment</option>
+                                    <option value="condo">Condo</option>
+                                    <option value="villa">Villa</option>
+                                </select>
+                            </div>
+                            
+                            <div>
+                                <label class="block text-sm font-medium text-gray-700 mb-2">Price Range</label>
+                                <div class="space-y-2">
+                                    <input type="range" id="priceRange" min="0" max="1000000" step="10000" value="500000" 
+                                           class="w-full h-2 bg-gray-200 rounded-lg appearance-none cursor-pointer">
+                                    <div class="flex justify-between text-sm text-gray-600">
+                                        <span>$0</span>
+                                        <span id="priceValue">$500,000</span>
+                                        <span>$1M+</span>
+                                    </div>
+                                </div>
+                            </div>
+                            
+                            <div>
+                                <label class="block text-sm font-medium text-gray-700 mb-2">Bedrooms</label>
+                                <div class="grid grid-cols-3 gap-2">
+                                    <button onclick="selectBedrooms(1)" class="bedroom-btn px-3 py-2 border border-gray-300 rounded-lg text-center hover:bg-blue-50">1+</button>
+                                    <button onclick="selectBedrooms(2)" class="bedroom-btn px-3 py-2 border border-gray-300 rounded-lg text-center hover:bg-blue-50">2+</button>
+                                    <button onclick="selectBedrooms(3)" class="bedroom-btn px-3 py-2 border border-gray-300 rounded-lg text-center hover:bg-blue-50">3+</button>
+                                </div>
+                            </div>
+                            
+                            <div>
+                                <label class="block text-sm font-medium text-gray-700 mb-2">Bathrooms</label>
+                                <div class="grid grid-cols-3 gap-2">
+                                    <button onclick="selectBathrooms(1)" class="bathroom-btn px-3 py-2 border border-gray-300 rounded-lg text-center hover:bg-blue-50">1+</button>
+                                    <button onclick="selectBathrooms(2)" class="bathroom-btn px-3 py-2 border border-gray-300 rounded-lg text-center hover:bg-blue-50">2+</button>
+                                    <button onclick="selectBathrooms(3)" class="bathroom-btn px-3 py-2 border border-gray-300 rounded-lg text-center hover:bg-blue-50">3+</button>
+                                </div>
+                            </div>
+                            
+                            <button onclick="applyFilters()" class="w-full bg-blue-600 text-white py-3 rounded-lg hover:bg-blue-700 font-semibold">
+                                Apply Filters
+                            </button>
+                            
+                            <button onclick="clearFilters()" class="w-full bg-gray-200 text-gray-700 py-3 rounded-lg hover:bg-gray-300 font-semibold">
+                                Clear All
+                            </button>
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- Properties Grid -->
+                <div class="lg:w-3/4">
+                    <div class="flex justify-between items-center mb-6">
+                        <div>
+                            <h2 class="text-2xl font-bold text-gray-900">Available Properties</h2>
+                            <p class="text-gray-600" id="propertyCount">Showing 12 of 156 properties</p>
+                        </div>
+                        <div class="flex items-center space-x-4">
+                            <select id="sortBy" class="px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500">
+                                <option value="newest">Newest First</option>
+                                <option value="price-low">Price: Low to High</option>
+                                <option value="price-high">Price: High to Low</option>
+                                <option value="size">Size</option>
+                            </select>
+                            <div class="flex border border-gray-300 rounded-lg">
+                                <button onclick="setViewMode('grid')" class="view-btn px-3 py-2 bg-blue-600 text-white rounded-l-lg">
+                                    <svg class="w-5 h-5" fill="currentColor" viewBox="0 0 20 20">
+                                        <path d="M5 3a2 2 0 00-2 2v2a2 2 0 002 2h2a2 2 0 002-2V5a2 2 0 00-2-2H5zM5 11a2 2 0 00-2 2v2a2 2 0 002 2h2a2 2 0 002-2v-2a2 2 0 00-2-2H5zM11 5a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2h-2a2 2 0 01-2-2V5zM11 13a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2h-2a2 2 0 01-2-2v-2z"></path>
+                                    </svg>
+                                </button>
+                                <button onclick="setViewMode('list')" class="view-btn px-3 py-2 text-gray-600 rounded-r-lg hover:bg-gray-50">
+                                    <svg class="w-5 h-5" fill="currentColor" viewBox="0 0 20 20">
+                                        <path fill-rule="evenodd" d="M3 4a1 1 0 011-1h12a1 1 0 110 2H4a1 1 0 01-1-1zm0 4a1 1 0 011-1h12a1 1 0 110 2H4a1 1 0 01-1-1zm0 4a1 1 0 011-1h12a1 1 0 110 2H4a1 1 0 01-1-1z" clip-rule="evenodd"></path>
+                                    </svg>
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div id="propertiesGrid" class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                        <!-- Properties will be loaded here -->
+                    </div>
+                    
+                    <!-- Pagination -->
+                    <div class="flex justify-center mt-12">
+                        <div class="flex items-center space-x-2">
+                            <button class="px-4 py-2 border border-gray-300 rounded-lg hover:bg-gray-50">Previous</button>
+                            <button class="px-4 py-2 bg-blue-600 text-white rounded-lg">1</button>
+                            <button class="px-4 py-2 border border-gray-300 rounded-lg hover:bg-gray-50">2</button>
+                            <button class="px-4 py-2 border border-gray-300 rounded-lg hover:bg-gray-50">3</button>
+                            <button class="px-4 py-2 border border-gray-300 rounded-lg hover:bg-gray-50">Next</button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- About Section -->
+    <div id="aboutSection" class="section-content hidden pt-16">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
+            <!-- Hero Section -->
+            <div class="text-center mb-16">
+                <h1 class="text-4xl font-bold text-gray-900 mb-6">About PropertyHub</h1>
+                <p class="text-xl text-gray-600 max-w-3xl mx-auto">We're revolutionizing the real estate industry by connecting buyers, sellers, and renters through our innovative platform that makes property transactions simple, transparent, and efficient.</p>
+            </div>
+
+            <!-- Mission & Vision -->
+            <div class="grid grid-cols-1 lg:grid-cols-2 gap-12 mb-20">
+                <div class="bg-white p-8 rounded-2xl shadow-lg">
+                    <div class="text-blue-600 mb-4">
+                        <svg class="w-12 h-12" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 10V3L4 14h7v7l9-11h-7z"></path>
+                        </svg>
+                    </div>
+                    <h3 class="text-2xl font-bold text-gray-900 mb-4">Our Mission</h3>
+                    <p class="text-gray-700 leading-relaxed">To democratize real estate by providing a comprehensive platform that empowers everyone to find their perfect home or investment property with confidence, transparency, and ease.</p>
+                </div>
+                
+                <div class="bg-white p-8 rounded-2xl shadow-lg">
+                    <div class="text-green-600 mb-4">
+                        <svg class="w-12 h-12" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"></path>
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z"></path>
+                        </svg>
+                    </div>
+                    <h3 class="text-2xl font-bold text-gray-900 mb-4">Our Vision</h3>
+                    <p class="text-gray-700 leading-relaxed">To become the world's most trusted real estate platform, where every property transaction is seamless, every decision is informed, and every dream home is within reach.</p>
+                </div>
+            </div>
+
+            <!-- Company Story -->
+            <div class="bg-gradient-to-r from-blue-50 to-purple-50 rounded-2xl p-12 mb-20">
+                <div class="max-w-4xl mx-auto text-center">
+                    <h2 class="text-3xl font-bold text-gray-900 mb-6">Our Story</h2>
+                    <p class="text-lg text-gray-700 leading-relaxed mb-8">Founded in 2020 by a team of real estate professionals and tech innovators, PropertyHub was born from the frustration of outdated, complex property search processes. We recognized that buying, selling, or renting property shouldn't be stressful or confusing.</p>
+                    <p class="text-lg text-gray-700 leading-relaxed">Today, we've helped over 10,000 families find their dream homes and assisted thousands of property owners in successful transactions. Our platform combines cutting-edge technology with human expertise to deliver an unparalleled real estate experience.</p>
+                </div>
+            </div>
+
+            <!-- Team Section -->
+            <div class="mb-20">
+                <div class="text-center mb-12">
+                    <h2 class="text-3xl font-bold text-gray-900 mb-4">Meet Our Team</h2>
+                    <p class="text-xl text-gray-600">The passionate professionals behind PropertyHub</p>
+                </div>
+                
+                <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8">
+                    <div class="text-center">
+                        <img src="https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=200&h=200&fit=crop&crop=face" alt="CEO" class="w-32 h-32 rounded-full mx-auto mb-4 object-cover">
+                        <h4 class="text-xl font-bold text-gray-900">Michael Chen</h4>
+                        <p class="text-blue-600 font-medium mb-2">CEO & Founder</p>
+                        <p class="text-gray-600 text-sm">15+ years in real estate technology</p>
+                    </div>
+                    
+                    <div class="text-center">
+                        <img src="https://images.unsplash.com/photo-1494790108755-2616b612b786?w=200&h=200&fit=crop&crop=face" alt="CTO" class="w-32 h-32 rounded-full mx-auto mb-4 object-cover">
+                        <h4 class="text-xl font-bold text-gray-900">Sarah Johnson</h4>
+                        <p class="text-blue-600 font-medium mb-2">CTO & Co-Founder</p>
+                        <p class="text-gray-600 text-sm">Former Google engineer, AI specialist</p>
+                    </div>
+                    
+                    <div class="text-center">
+                        <img src="https://images.unsplash.com/photo-1472099645785-5658abf4ff4e?w=200&h=200&fit=crop&crop=face" alt="Head of Sales" class="w-32 h-32 rounded-full mx-auto mb-4 object-cover">
+                        <h4 class="text-xl font-bold text-gray-900">David Rodriguez</h4>
+                        <p class="text-blue-600 font-medium mb-2">Head of Sales</p>
+                        <p class="text-gray-600 text-sm">Real estate veteran, 20+ years experience</p>
+                    </div>
+                    
+                    <div class="text-center">
+                        <img src="https://images.unsplash.com/photo-1438761681033-6461ffad8d80?w=200&h=200&fit=crop&crop=face" alt="Head of Marketing" class="w-32 h-32 rounded-full mx-auto mb-4 object-cover">
+                        <h4 class="text-xl font-bold text-gray-900">Emily Davis</h4>
+                        <p class="text-blue-600 font-medium mb-2">Head of Marketing</p>
+                        <p class="text-gray-600 text-sm">Digital marketing expert, growth hacker</p>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Values Section -->
+            <div class="grid grid-cols-1 md:grid-cols-3 gap-8 mb-20">
+                <div class="text-center p-6">
+                    <div class="bg-blue-100 w-16 h-16 rounded-full flex items-center justify-center mx-auto mb-4">
+                        <svg class="w-8 h-8 text-blue-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"></path>
+                        </svg>
+                    </div>
+                    <h3 class="text-xl font-bold text-gray-900 mb-3">Transparency</h3>
+                    <p class="text-gray-600">We believe in complete transparency in all transactions, providing clear information and honest communication.</p>
+                </div>
+                
+                <div class="text-center p-6">
+                    <div class="bg-green-100 w-16 h-16 rounded-full flex items-center justify-center mx-auto mb-4">
+                        <svg class="w-8 h-8 text-green-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 10V3L4 14h7v7l9-11h-7z"></path>
+                        </svg>
+                    </div>
+                    <h3 class="text-xl font-bold text-gray-900 mb-3">Innovation</h3>
+                    <p class="text-gray-600">We continuously innovate to make real estate transactions faster, easier, and more efficient for everyone.</p>
+                </div>
+                
+                <div class="text-center p-6">
+                    <div class="bg-purple-100 w-16 h-16 rounded-full flex items-center justify-center mx-auto mb-4">
+                        <svg class="w-8 h-8 text-purple-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4.318 6.318a4.5 4.5 0 000 6.364L12 20.364l7.682-7.682a4.5 4.5 0 00-6.364-6.364L12 7.636l-1.318-1.318a4.5 4.5 0 00-6.364 0z"></path>
+                        </svg>
+                    </div>
+                    <h3 class="text-xl font-bold text-gray-900 mb-3">Customer First</h3>
+                    <p class="text-gray-600">Our customers are at the heart of everything we do. Their success is our success.</p>
+                </div>
+            </div>
+
+            <!-- Awards & Recognition -->
+            <div class="bg-white rounded-2xl shadow-lg p-12 text-center">
+                <h2 class="text-3xl font-bold text-gray-900 mb-8">Awards & Recognition</h2>
+                <div class="grid grid-cols-1 md:grid-cols-3 gap-8">
+                    <div>
+                        <div class="text-4xl mb-4">🏆</div>
+                        <h4 class="text-lg font-bold text-gray-900 mb-2">Best Real Estate Platform 2023</h4>
+                        <p class="text-gray-600">PropTech Awards</p>
+                    </div>
+                    <div>
+                        <div class="text-4xl mb-4">⭐</div>
+                        <h4 class="text-lg font-bold text-gray-900 mb-2">Top Startup 2022</h4>
+                        <p class="text-gray-600">TechCrunch Disrupt</p>
+                    </div>
+                    <div>
+                        <div class="text-4xl mb-4">🚀</div>
+                        <h4 class="text-lg font-bold text-gray-900 mb-2">Innovation Award</h4>
+                        <p class="text-gray-600">Real Estate Tech Summit</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Contact Section -->
+    <div id="contactSection" class="section-content hidden pt-16">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
+            <!-- Header -->
+            <div class="text-center mb-16">
+                <h1 class="text-4xl font-bold text-gray-900 mb-6">Get In Touch</h1>
+                <p class="text-xl text-gray-600 max-w-3xl mx-auto">Have questions about PropertyHub? Need help with your property search? We're here to help you every step of the way.</p>
+            </div>
+
+            <div class="grid grid-cols-1 lg:grid-cols-2 gap-12">
+                <!-- Contact Form -->
+                <div class="bg-white rounded-2xl shadow-lg p-8">
+                    <h2 class="text-2xl font-bold text-gray-900 mb-6">Send us a Message</h2>
+                    <form id="generalContactForm" class="space-y-6">
+                        <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                            <div>
+                                <label class="block text-sm font-medium text-gray-700 mb-2">First Name *</label>
+                                <input type="text" id="contactFirstName" required 
+                                       class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500">
+                            </div>
+                            <div>
+                                <label class="block text-sm font-medium text-gray-700 mb-2">Last Name *</label>
+                                <input type="text" id="contactLastName" required 
+                                       class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500">
+                            </div>
+                        </div>
+                        
+                        <div>
+                            <label class="block text-sm font-medium text-gray-700 mb-2">Email Address *</label>
+                            <input type="email" id="contactEmailAddress" required 
+                                   class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500">
+                        </div>
+                        
+                        <div>
+                            <label class="block text-sm font-medium text-gray-700 mb-2">Phone Number</label>
+                            <input type="tel" id="contactPhoneNumber" 
+                                   class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500">
+                        </div>
+                        
+                        <div>
+                            <label class="block text-sm font-medium text-gray-700 mb-2">Subject *</label>
+                            <select id="contactSubject" required 
+                                    class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500">
+                                <option value="">Select a subject</option>
+                                <option value="general">General Inquiry</option>
+                                <option value="property">Property Question</option>
+                                <option value="technical">Technical Support</option>
+                                <option value="partnership">Partnership</option>
+                                <option value="feedback">Feedback</option>
+                                <option value="other">Other</option>
+                            </select>
+                        </div>
+                        
+                        <div>
+                            <label class="block text-sm font-medium text-gray-700 mb-2">Message *</label>
+                            <textarea id="contactMessageText" rows="5" required 
+                                      placeholder="Tell us how we can help you..."
+                                      class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"></textarea>
+                        </div>
+                        
+                        <div class="flex items-center">
+                            <input type="checkbox" id="contactConsent" required class="rounded border-gray-300 text-blue-600 focus:ring-blue-500">
+                            <label for="contactConsent" class="ml-2 text-sm text-gray-600">
+                                I agree to receive communications from PropertyHub and understand that I can unsubscribe at any time.
+                            </label>
+                        </div>
+                        
+                        <button type="submit" class="w-full bg-blue-600 text-white py-4 rounded-lg hover:bg-blue-700 font-semibold text-lg transition duration-300">
+                            Send Message
+                        </button>
+                    </form>
+                </div>
+
+                <!-- Contact Information -->
+                <div class="space-y-8">
+                    <!-- Office Locations -->
+                    <div class="bg-white rounded-2xl shadow-lg p-8">
+                        <h3 class="text-xl font-bold text-gray-900 mb-6">Our Offices</h3>
+                        <div class="space-y-6">
+                            <div class="flex items-start space-x-4">
+                                <div class="bg-blue-100 p-3 rounded-lg">
+                                    <svg class="w-6 h-6 text-blue-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z"></path>
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 11a3 3 0 11-6 0 3 3 0 016 0z"></path>
+                                    </svg>
+                                </div>
+                                <div>
+                                    <h4 class="font-semibold text-gray-900">New York Headquarters</h4>
+                                    <p class="text-gray-600">123 Broadway, Suite 456<br>New York, NY 10001</p>
+                                    <p class="text-blue-600 font-medium mt-1">Mon-Fri: 9AM-6PM EST</p>
+                                </div>
+                            </div>
+                            
+                            <div class="flex items-start space-x-4">
+                                <div class="bg-green-100 p-3 rounded-lg">
+                                    <svg class="w-6 h-6 text-green-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z"></path>
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 11a3 3 0 11-6 0 3 3 0 016 0z"></path>
+                                    </svg>
+                                </div>
+                                <div>
+                                    <h4 class="font-semibold text-gray-900">Los Angeles Office</h4>
+                                    <p class="text-gray-600">789 Sunset Blvd, Floor 12<br>Los Angeles, CA 90028</p>
+                                    <p class="text-green-600 font-medium mt-1">Mon-Fri: 9AM-6PM PST</p>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Contact Methods -->
+                    <div class="bg-white rounded-2xl shadow-lg p-8">
+                        <h3 class="text-xl font-bold text-gray-900 mb-6">Get in Touch</h3>
+                        <div class="space-y-4">
+                            <div class="flex items-center space-x-4">
+                                <div class="bg-blue-100 p-3 rounded-lg">
+                                    <svg class="w-6 h-6 text-blue-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 5a2 2 0 012-2h3.28a1 1 0 01.948.684l1.498 4.493a1 1 0 01-.502 1.21l-2.257 1.13a11.042 11.042 0 005.516 5.516l1.13-2.257a1 1 0 011.21-.502l4.493 1.498a1 1 0 01.684.949V19a2 2 0 01-2 2h-1C9.716 21 3 14.284 3 6V5z"></path>
+                                    </svg>
+                                </div>
+                                <div>
+                                    <h4 class="font-semibold text-gray-900">Phone Support</h4>
+                                    <p class="text-gray-600">+1 (555) 123-4567</p>
+                                    <p class="text-sm text-gray-500">24/7 Customer Support</p>
+                                </div>
+                            </div>
+                            
+                            <div class="flex items-center space-x-4">
+                                <div class="bg-green-100 p-3 rounded-lg">
+                                    <svg class="w-6 h-6 text-green-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 8l7.89 4.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z"></path>
+                                    </svg>
+                                </div>
+                                <div>
+                                    <h4 class="font-semibold text-gray-900">Email Support</h4>
+                                    <p class="text-gray-600">support@propertyhub.com</p>
+                                    <p class="text-sm text-gray-500">Response within 24 hours</p>
+                                </div>
+                            </div>
+                            
+                            <div class="flex items-center space-x-4">
+                                <div class="bg-purple-100 p-3 rounded-lg">
+                                    <svg class="w-6 h-6 text-purple-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 12h.01M12 12h.01M16 12h.01M21 12c0 4.418-4.03 8-9 8a9.863 9.863 0 01-4.255-.949L3 20l1.395-3.72C3.512 15.042 3 13.574 3 12c0-4.418 4.03-8 9-8s9 3.582 9 8z"></path>
+                                    </svg>
+                                </div>
+                                <div>
+                                    <h4 class="font-semibold text-gray-900">Live Chat</h4>
+                                    <p class="text-gray-600">Available on website</p>
+                                    <p class="text-sm text-gray-500">Mon-Fri: 9AM-9PM EST</p>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- FAQ Quick Links -->
+                    <div class="bg-gradient-to-r from-blue-50 to-purple-50 rounded-2xl p-8">
+                        <h3 class="text-xl font-bold text-gray-900 mb-4">Quick Help</h3>
+                        <p class="text-gray-600 mb-4">Looking for quick answers? Check out our most popular help topics:</p>
+                        <div class="space-y-2">
+                            <button class="w-full text-left text-blue-600 hover:text-blue-700 font-medium">• How to list my property</button>
+                            <button class="w-full text-left text-blue-600 hover:text-blue-700 font-medium">• Property search tips</button>
+                            <button class="w-full text-left text-blue-600 hover:text-blue-700 font-medium">• Account management</button>
+                            <button class="w-full text-left text-blue-600 hover:text-blue-700 font-medium">• Payment and pricing</button>
+                            <button class="w-full text-left text-blue-600 hover:text-blue-700 font-medium">• Technical support</button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Map Section -->
+            <div class="mt-16 bg-white rounded-2xl shadow-lg p-8">
+                <h2 class="text-2xl font-bold text-gray-900 mb-6 text-center">Visit Our Offices</h2>
+                <div class="bg-gray-200 h-96 rounded-xl flex items-center justify-center">
+                    <div class="text-center">
+                        <div class="text-6xl mb-4">🗺️</div>
+                        <h3 class="text-xl font-bold text-gray-700 mb-2">Interactive Map</h3>
+                        <p class="text-gray-600">Find our office locations and get directions</p>
+                        <button class="mt-4 bg-blue-600 text-white px-6 py-3 rounded-lg hover:bg-blue-700 font-medium">
+                            View on Google Maps
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Dashboard Section -->
+    <div id="dashboardSection" class="section-content hidden pt-16">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
+            <div class="mb-8">
+                <h1 class="text-3xl font-bold text-gray-900">Dashboard</h1>
+                <p class="text-gray-600 mt-2">Manage your property listings</p>
+            </div>
+            
+            <div class="grid grid-cols-1 lg:grid-cols-4 gap-8">
+                <!-- Sidebar -->
+                <div class="lg:col-span-1">
+                    <div class="bg-white rounded-xl shadow-lg p-6">
+                        <div class="text-center mb-6">
+                            <img src="https://images.unsplash.com/photo-1472099645785-5658abf4ff4e?w=80&h=80&fit=crop&crop=face" 
+                                 alt="Profile" class="w-20 h-20 rounded-full mx-auto mb-4">
+                            <h3 class="font-semibold text-gray-900" id="dashboardUserName">John Doe</h3>
+                            <p class="text-gray-600 text-sm">Property Owner</p>
+                        </div>
+                        
+                        <nav class="space-y-2">
+                            <button onclick="showDashboardTab('listings')" class="dashboard-tab w-full text-left px-4 py-3 rounded-lg bg-blue-50 text-blue-600 font-medium">
+                                My Listings
+                            </button>
+                            <button onclick="showDashboardTab('add-property')" class="dashboard-tab w-full text-left px-4 py-3 rounded-lg hover:bg-gray-50 text-gray-700">
+                                Add Property
+                            </button>
+                            <button onclick="showDashboardTab('messages')" class="dashboard-tab w-full text-left px-4 py-3 rounded-lg hover:bg-gray-50 text-gray-700">
+                                Messages
+                            </button>
+                            <button onclick="showDashboardTab('profile')" class="dashboard-tab w-full text-left px-4 py-3 rounded-lg hover:bg-gray-50 text-gray-700">
+                                Profile Settings
+                            </button>
+                        </nav>
+                    </div>
+                </div>
+                
+                <!-- Main Content -->
+                <div class="lg:col-span-3">
+                    <!-- My Listings Tab -->
+                    <div id="listingsTab" class="dashboard-content">
+                        <div class="bg-white rounded-xl shadow-lg p-6">
+                            <div class="flex justify-between items-center mb-6">
+                                <h2 class="text-xl font-bold text-gray-900">My Property Listings</h2>
+                                <button onclick="showDashboardTab('add-property')" class="bg-blue-600 text-white px-4 py-2 rounded-lg hover:bg-blue-700">
+                                    + Add New Property
+                                </button>
+                            </div>
+                            
+                            <div class="space-y-4" id="userListings">
+                                <!-- User listings will be loaded here -->
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <!-- Add Property Tab -->
+                    <div id="addPropertyTab" class="dashboard-content hidden">
+                        <div class="bg-white rounded-xl shadow-lg p-6">
+                            <h2 class="text-xl font-bold text-gray-900 mb-6">Add New Property</h2>
+                            
+                            <form id="addPropertyForm" class="space-y-6">
+                                <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                                    <div>
+                                        <label class="block text-sm font-medium text-gray-700 mb-2">Property Title</label>
+                                        <input type="text" id="propertyTitle" required 
+                                               class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500">
+                                    </div>
+                                    <div>
+                                        <label class="block text-sm font-medium text-gray-700 mb-2">Property Type</label>
+                                        <select id="propertyType" required 
+                                                class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500">
+                                            <option value="">Select Type</option>
+                                            <option value="house">House</option>
+                                            <option value="apartment">Apartment</option>
+                                            <option value="condo">Condo</option>
+                                            <option value="villa">Villa</option>
+                                        </select>
+                                    </div>
+                                </div>
+                                
+                                <div>
+                                    <label class="block text-sm font-medium text-gray-700 mb-2">Description</label>
+                                    <textarea id="propertyDescription" rows="4" required 
+                                              class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"></textarea>
+                                </div>
+                                
+                                <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
+                                    <div>
+                                        <label class="block text-sm font-medium text-gray-700 mb-2">Price ($)</label>
+                                        <input type="number" id="propertyPrice" required 
+                                               class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500">
+                                    </div>
+                                    <div>
+                                        <label class="block text-sm font-medium text-gray-700 mb-2">Bedrooms</label>
+                                        <input type="number" id="propertyBedrooms" required 
+                                               class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500">
+                                    </div>
+                                    <div>
+                                        <label class="block text-sm font-medium text-gray-700 mb-2">Bathrooms</label>
+                                        <input type="number" id="propertyBathrooms" required 
+                                               class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500">
+                                    </div>
+                                </div>
+                                
+                                <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                                    <div>
+                                        <label class="block text-sm font-medium text-gray-700 mb-2">Square Feet</label>
+                                        <input type="number" id="propertySize" required 
+                                               class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500">
+                                    </div>
+                                    <div>
+                                        <label class="block text-sm font-medium text-gray-700 mb-2">Location</label>
+                                        <input type="text" id="propertyLocation" required 
+                                               class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500">
+                                    </div>
+                                </div>
+                                
+                                <div>
+                                    <label class="block text-sm font-medium text-gray-700 mb-2">Property Images</label>
+                                    <div class="border-2 border-dashed border-gray-300 rounded-lg p-6 text-center">
+                                        <input type="file" id="propertyImages" multiple accept="image/*" class="hidden">
+                                        <button type="button" onclick="document.getElementById('propertyImages').click()" 
+                                                class="bg-blue-600 text-white px-6 py-3 rounded-lg hover:bg-blue-700">
+                                            📷 Upload Images
+                                        </button>
+                                        <p class="text-gray-500 mt-2">Upload up to 10 images</p>
+                                        <div id="imagePreview" class="mt-4 grid grid-cols-2 md:grid-cols-4 gap-4"></div>
+                                    </div>
+                                </div>
+                                
+                                <div class="flex justify-end space-x-4">
+                                    <button type="button" class="px-6 py-3 border border-gray-300 rounded-lg hover:bg-gray-50">
+                                        Save as Draft
+                                    </button>
+                                    <button type="submit" class="px-6 py-3 bg-blue-600 text-white rounded-lg hover:bg-blue-700">
+                                        Submit for Review
+                                    </button>
+                                </div>
+                            </form>
+                        </div>
+                    </div>
+                    
+                    <!-- Messages Tab -->
+                    <div id="messagesTab" class="dashboard-content hidden">
+                        <div class="bg-white rounded-xl shadow-lg p-6">
+                            <h2 class="text-xl font-bold text-gray-900 mb-6">Messages</h2>
+                            <div id="messagesList" class="space-y-4">
+                                <!-- Messages will be loaded here -->
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <!-- Profile Tab -->
+                    <div id="profileTab" class="dashboard-content hidden">
+                        <div class="bg-white rounded-xl shadow-lg p-6">
+                            <h2 class="text-xl font-bold text-gray-900 mb-6">Profile Settings</h2>
+                            <form class="space-y-6">
+                                <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                                    <div>
+                                        <label class="block text-sm font-medium text-gray-700 mb-2">First Name</label>
+                                        <input type="text" class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500">
+                                    </div>
+                                    <div>
+                                        <label class="block text-sm font-medium text-gray-700 mb-2">Last Name</label>
+                                        <input type="text" class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500">
+                                    </div>
+                                </div>
+                                <div>
+                                    <label class="block text-sm font-medium text-gray-700 mb-2">Email</label>
+                                    <input type="email" class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500">
+                                </div>
+                                <div>
+                                    <label class="block text-sm font-medium text-gray-700 mb-2">Phone</label>
+                                    <input type="tel" class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500">
+                                </div>
+                                <button type="submit" class="bg-blue-600 text-white px-6 py-3 rounded-lg hover:bg-blue-700">
+                                    Update Profile
+                                </button>
+                            </form>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Login Modal -->
+    <div id="loginModal" class="hidden fixed inset-0 bg-black bg-opacity-50 z-50 flex items-center justify-center p-4">
+        <div class="bg-white rounded-2xl max-w-md w-full p-8">
+            <div class="text-center mb-8">
+                <h2 class="text-2xl font-bold text-gray-900">Welcome Back</h2>
+                <p class="text-gray-600 mt-2">Sign in to your account</p>
+            </div>
+            
+            <form id="loginForm" class="space-y-6">
+                <div>
+                    <label class="block text-sm font-medium text-gray-700 mb-2">Email</label>
+                    <input type="email" id="loginEmail" required 
+                           class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500">
+                </div>
+                <div>
+                    <label class="block text-sm font-medium text-gray-700 mb-2">Password</label>
+                    <input type="password" id="loginPassword" required 
+                           class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500">
+                </div>
+                <div class="flex items-center justify-between">
+                    <label class="flex items-center">
+                        <input type="checkbox" class="rounded border-gray-300 text-blue-600 focus:ring-blue-500">
+                        <span class="ml-2 text-sm text-gray-600">Remember me</span>
+                    </label>
+                    <a href="#" class="text-sm text-blue-600 hover:text-blue-700">Forgot password?</a>
+                </div>
+                <button type="submit" class="w-full bg-blue-600 text-white py-3 rounded-lg hover:bg-blue-700 font-semibold">
+                    Sign In
+                </button>
+            </form>
+            
+            <div class="mt-6 text-center">
+                <p class="text-gray-600">Don't have an account? 
+                    <button onclick="showRegisterModal()" class="text-blue-600 hover:text-blue-700 font-medium">Sign up</button>
+                </p>
+            </div>
+            
+            <button onclick="closeModal('loginModal')" class="absolute top-4 right-4 text-gray-400 hover:text-gray-600">
+                <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path>
+                </svg>
+            </button>
+        </div>
+    </div>
+
+    <!-- Register Modal -->
+    <div id="registerModal" class="hidden fixed inset-0 bg-black bg-opacity-50 z-50 flex items-center justify-center p-4">
+        <div class="bg-white rounded-2xl max-w-md w-full p-8">
+            <div class="text-center mb-8">
+                <h2 class="text-2xl font-bold text-gray-900">Create Account</h2>
+                <p class="text-gray-600 mt-2">Join PropertyHub today</p>
+            </div>
+            
+            <form id="registerForm" class="space-y-6">
+                <div class="grid grid-cols-2 gap-4">
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700 mb-2">First Name</label>
+                        <input type="text" id="registerFirstName" required 
+                               class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500">
+                    </div>
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700 mb-2">Last Name</label>
+                        <input type="text" id="registerLastName" required 
+                               class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500">
+                    </div>
+                </div>
+                <div>
+                    <label class="block text-sm font-medium text-gray-700 mb-2">Email</label>
+                    <input type="email" id="registerEmail" required 
+                           class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500">
+                </div>
+                <div>
+                    <label class="block text-sm font-medium text-gray-700 mb-2">Password</label>
+                    <input type="password" id="registerPassword" required 
+                           class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500">
+                </div>
+                <div>
+                    <label class="block text-sm font-medium text-gray-700 mb-2">User Type</label>
+                    <select id="userType" required 
+                            class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500">
+                        <option value="">Select Type</option>
+                        <option value="buyer">Buyer/Renter</option>
+                        <option value="seller">Property Owner/Agent</option>
+                    </select>
+                </div>
+                <button type="submit" class="w-full bg-blue-600 text-white py-3 rounded-lg hover:bg-blue-700 font-semibold">
+                    Create Account
+                </button>
+            </form>
+            
+            <div class="mt-6 text-center">
+                <p class="text-gray-600">Already have an account? 
+                    <button onclick="showLoginModal()" class="text-blue-600 hover:text-blue-700 font-medium">Sign in</button>
+                </p>
+            </div>
+            
+            <button onclick="closeModal('registerModal')" class="absolute top-4 right-4 text-gray-400 hover:text-gray-600">
+                <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path>
+                </svg>
+            </button>
+        </div>
+    </div>
+
+    <!-- Property Detail Modal -->
+    <div id="propertyModal" class="hidden fixed inset-0 bg-black bg-opacity-50 z-50 flex items-center justify-center p-4">
+        <div class="bg-white rounded-2xl max-w-4xl w-full max-h-screen overflow-y-auto">
+            <div id="propertyModalContent">
+                <!-- Property details will be loaded here -->
+            </div>
+        </div>
+    </div>
+
+    <!-- Contact Modal -->
+    <div id="contactModal" class="hidden fixed inset-0 bg-black bg-opacity-50 z-50 flex items-center justify-center p-4">
+        <div class="bg-white rounded-2xl max-w-md w-full p-8">
+            <div class="text-center mb-6">
+                <h2 class="text-2xl font-bold text-gray-900">Contact Seller</h2>
+                <p class="text-gray-600 mt-2">Send a message about this property</p>
+            </div>
+            
+            <form id="contactForm" class="space-y-6">
+                <div>
+                    <label class="block text-sm font-medium text-gray-700 mb-2">Your Name</label>
+                    <input type="text" id="contactName" required 
+                           class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500">
+                </div>
+                <div>
+                    <label class="block text-sm font-medium text-gray-700 mb-2">Email</label>
+                    <input type="email" id="contactEmail" required 
+                           class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500">
+                </div>
+                <div>
+                    <label class="block text-sm font-medium text-gray-700 mb-2">Phone</label>
+                    <input type="tel" id="contactPhone" 
+                           class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500">
+                </div>
+                <div>
+                    <label class="block text-sm font-medium text-gray-700 mb-2">Message</label>
+                    <textarea id="contactMessage" rows="4" required 
+                              class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+                              placeholder="I'm interested in this property..."></textarea>
+                </div>
+                <button type="submit" class="w-full bg-blue-600 text-white py-3 rounded-lg hover:bg-blue-700 font-semibold">
+                    Send Message
+                </button>
+            </form>
+            
+            <button onclick="closeModal('contactModal')" class="absolute top-4 right-4 text-gray-400 hover:text-gray-600">
+                <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path>
+                </svg>
+            </button>
+        </div>
+    </div>
+
+    <script>
+        // Global variables
+        let currentUser = null;
+        let properties = [];
+        let filteredProperties = [];
+        let currentFilters = {};
+        let selectedBedrooms = null;
+        let selectedBathrooms = null;
+
+        // Mock data
+        const mockProperties = [
+            {
+                id: 1,
+                title: "Modern Downtown Apartment",
+                type: "apartment",
+                price: 450000,
+                bedrooms: 2,
+                bathrooms: 2,
+                size: 1200,
+                location: "Downtown, New York",
+                description: "Beautiful modern apartment in the heart of downtown with stunning city views.",
+                images: [
+                    "https://images.unsplash.com/photo-1545324418-cc1a3fa10c00?w=600&h=400&fit=crop",
+                    "https://images.unsplash.com/photo-1484154218962-a197022b5858?w=600&h=400&fit=crop",
+                    "https://images.unsplash.com/photo-1502672260266-1c1ef2d93688?w=600&h=400&fit=crop"
+                ],
+                seller: "John Smith",
+                sellerEmail: "john@example.com",
+                featured: true,
+                status: "active"
+            },
+            {
+                id: 2,
+                title: "Luxury Family Villa",
+                type: "villa",
+                price: 850000,
+                bedrooms: 4,
+                bathrooms: 3,
+                size: 2800,
+                location: "Beverly Hills, CA",
+                description: "Stunning luxury villa with pool and garden in prestigious neighborhood.",
+                images: [
+                    "https://images.unsplash.com/photo-1613490493576-7fde63acd811?w=600&h=400&fit=crop",
+                    "https://images.unsplash.com/photo-1512917774080-9991f1c4c750?w=600&h=400&fit=crop",
+                    "https://images.unsplash.com/photo-1600596542815-ffad4c1539a9?w=600&h=400&fit=crop"
+                ],
+                seller: "Sarah Johnson",
+                sellerEmail: "sarah@example.com",
+                featured: true,
+                status: "active"
+            },
+            {
+                id: 3,
+                title: "Cozy Suburban House",
+                type: "house",
+                price: 320000,
+                bedrooms: 3,
+                bathrooms: 2,
+                size: 1800,
+                location: "Suburbia, TX",
+                description: "Perfect family home in quiet suburban neighborhood with great schools.",
+                images: [
+                    "https://images.unsplash.com/photo-1570129477492-45c003edd2be?w=600&h=400&fit=crop",
+                    "https://images.unsplash.com/photo-1564013799919-ab600027ffc6?w=600&h=400&fit=crop",
+                    "https://images.unsplash.com/photo-1449844908441-8829872d2607?w=600&h=400&fit=crop"
+                ],
+                seller: "Mike Davis",
+                sellerEmail: "mike@example.com",
+                featured: false,
+                status: "active"
+            },
+            {
+                id: 4,
+                title: "Urban Loft Condo",
+                type: "condo",
+                price: 380000,
+                bedrooms: 1,
+                bathrooms: 1,
+                size: 900,
+                location: "SoHo, NY",
+                description: "Trendy loft-style condo in artistic neighborhood with exposed brick walls.",
+                images: [
+                    "https://images.unsplash.com/photo-1522708323590-d24dbb6b0267?w=600&h=400&fit=crop",
+                    "https://images.unsplash.com/photo-1560448204-e02f11c3d0e2?w=600&h=400&fit=crop",
+                    "https://images.unsplash.com/photo-1586023492125-27b2c045efd7?w=600&h=400&fit=crop"
+                ],
+                seller: "Lisa Chen",
+                sellerEmail: "lisa@example.com",
+                featured: true,
+                status: "active"
+            },
+            {
+                id: 5,
+                title: "Waterfront Penthouse",
+                type: "apartment",
+                price: 1200000,
+                bedrooms: 3,
+                bathrooms: 3,
+                size: 2200,
+                location: "Miami Beach, FL",
+                description: "Luxurious penthouse with panoramic ocean views and private terrace.",
+                images: [
+                    "https://images.unsplash.com/photo-1600607687939-ce8a6c25118c?w=600&h=400&fit=crop",
+                    "https://images.unsplash.com/photo-1600566753190-17f0baa2a6c3?w=600&h=400&fit=crop",
+                    "https://images.unsplash.com/photo-1600585154340-be6161a56a0c?w=600&h=400&fit=crop"
+                ],
+                seller: "Robert Wilson",
+                sellerEmail: "robert@example.com",
+                featured: true,
+                status: "active"
+            },
+            {
+                id: 6,
+                title: "Mountain Cabin Retreat",
+                type: "house",
+                price: 280000,
+                bedrooms: 2,
+                bathrooms: 1,
+                size: 1100,
+                location: "Aspen, CO",
+                description: "Charming mountain cabin perfect for weekend getaways and outdoor enthusiasts.",
+                images: [
+                    "https://images.unsplash.com/photo-1449824913935-59a10b8d2000?w=600&h=400&fit=crop",
+                    "https://images.unsplash.com/photo-1506905925346-21bda4d32df4?w=600&h=400&fit=crop",
+                    "https://images.unsplash.com/photo-1441974231531-c6227db76b6e?w=600&h=400&fit=crop"
+                ],
+                seller: "Emma Brown",
+                sellerEmail: "emma@example.com",
+                featured: false,
+                status: "active"
+            }
+        ];
+
+        // Initialize the application
+        document.addEventListener('DOMContentLoaded', function() {
+            properties = [...mockProperties];
+            filteredProperties = [...properties];
+            loadFeaturedProperties();
+            loadProperties();
+            setupEventListeners();
+        });
+
+        // Event listeners
+        function setupEventListeners() {
+            // Price range slider
+            const priceRange = document.getElementById('priceRange');
+            const priceValue = document.getElementById('priceValue');
+            
+            if (priceRange && priceValue) {
+                priceRange.addEventListener('input', function() {
+                    const value = parseInt(this.value);
+                    priceValue.textContent = value >= 1000000 ? '$1M+' : '$' + value.toLocaleString();
+                });
+            }
+
+            // Image upload preview
+            const imageInput = document.getElementById('propertyImages');
+            if (imageInput) {
+                imageInput.addEventListener('change', function() {
+                    previewImages(this.files);
+                });
+            }
+
+            // Form submissions
+            const loginForm = document.getElementById('loginForm');
+            if (loginForm) {
+                loginForm.addEventListener('submit', handleLogin);
+            }
+
+            const registerForm = document.getElementById('registerForm');
+            if (registerForm) {
+                registerForm.addEventListener('submit', handleRegister);
+            }
+
+            const addPropertyForm = document.getElementById('addPropertyForm');
+            if (addPropertyForm) {
+                addPropertyForm.addEventListener('submit', handleAddProperty);
+            }
+
+            const contactForm = document.getElementById('contactForm');
+            if (contactForm) {
+                contactForm.addEventListener('submit', handleContactForm);
+            }
+
+            const generalContactForm = document.getElementById('generalContactForm');
+            if (generalContactForm) {
+                generalContactForm.addEventListener('submit', handleGeneralContactForm);
+            }
+        }
+
+        // Navigation functions
+        function showSection(section) {
+            document.querySelectorAll('.section-content').forEach(el => {
+                el.classList.add('hidden');
+            });
+            document.getElementById(section + 'Section').classList.remove('hidden');
+        }
+
+        // Modal functions
+        function showLoginModal() {
+            closeModal('registerModal');
+            document.getElementById('loginModal').classList.remove('hidden');
+        }
+
+        function showRegisterModal() {
+            closeModal('loginModal');
+            document.getElementById('registerModal').classList.remove('hidden');
+        }
+
+        function closeModal(modalId) {
+            document.getElementById(modalId).classList.add('hidden');
+        }
+
+        // Authentication functions
+        function handleLogin(e) {
+            e.preventDefault();
+            const email = document.getElementById('loginEmail').value;
+            const password = document.getElementById('loginPassword').value;
+
+            // Mock authentication
+            if (email && password) {
+                currentUser = {
+                    id: 1,
+                    name: 'John Doe',
+                    email: email,
+                    type: 'seller'
+                };
+                
+                updateUserInterface();
+                closeModal('loginModal');
+                showSuccessMessage('Login successful!');
+            }
+        }
+
+        function handleRegister(e) {
+            e.preventDefault();
+            const firstName = document.getElementById('registerFirstName').value;
+            const lastName = document.getElementById('registerLastName').value;
+            const email = document.getElementById('registerEmail').value;
+            const password = document.getElementById('registerPassword').value;
+            const userType = document.getElementById('userType').value;
+
+            // Mock registration
+            if (firstName && lastName && email && password && userType) {
+                currentUser = {
+                    id: Date.now(),
+                    name: `${firstName} ${lastName}`,
+                    email: email,
+                    type: userType
+                };
+                
+                updateUserInterface();
+                closeModal('registerModal');
+                showSuccessMessage('Account created successfully!');
+            }
+        }
+
+        function logout() {
+            currentUser = null;
+            updateUserInterface();
+            showSection('home');
+            showSuccessMessage('Logged out successfully!');
+        }
+
+        function updateUserInterface() {
+            const loginBtn = document.querySelector('button[onclick="showLoginModal()"]');
+            const registerBtn = document.querySelector('button[onclick="showRegisterModal()"]');
+            const userMenu = document.getElementById('userMenu');
+            const userName = document.getElementById('userName');
+            const dashboardUserName = document.getElementById('dashboardUserName');
+
+            if (currentUser) {
+                loginBtn.style.display = 'none';
+                registerBtn.style.display = 'none';
+                userMenu.classList.remove('hidden');
+                userName.textContent = currentUser.name;
+                if (dashboardUserName) {
+                    dashboardUserName.textContent = currentUser.name;
+                }
+            } else {
+                loginBtn.style.display = 'block';
+                registerBtn.style.display = 'block';
+                userMenu.classList.add('hidden');
+            }
+        }
+
+        // Property functions
+        function loadFeaturedProperties() {
+            const featuredContainer = document.getElementById('featuredProperties');
+            const featuredProps = properties.filter(p => p.featured).slice(0, 3);
+            
+            featuredContainer.innerHTML = featuredProps.map(property => createPropertyCard(property)).join('');
+        }
+
+        function loadProperties() {
+            const propertiesGrid = document.getElementById('propertiesGrid');
+            if (propertiesGrid) {
+                propertiesGrid.innerHTML = filteredProperties.map(property => createPropertyCard(property)).join('');
+                updatePropertyCount();
+            }
+        }
+
+        function createPropertyCard(property) {
+            return `
+                <div class="property-card bg-white rounded-xl shadow-lg overflow-hidden fade-in">
+                    <div class="relative">
+                        <img src="${property.images[0]}" alt="${property.title}" class="w-full h-48 object-cover">
+                        <div class="absolute top-4 left-4">
+                            <span class="badge bg-blue-600 text-white px-3 py-1 rounded-full text-sm font-medium">
+                                ${property.type.charAt(0).toUpperCase() + property.type.slice(1)}
+                            </span>
+                        </div>
+                        <div class="absolute top-4 right-4">
+                            <button onclick="toggleFavorite(${property.id})" class="bg-white p-2 rounded-full shadow-lg hover:bg-gray-50">
+                                <svg class="w-5 h-5 text-gray-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4.318 6.318a4.5 4.5 0 000 6.364L12 20.364l7.682-7.682a4.5 4.5 0 00-6.364-6.364L12 7.636l-1.318-1.318a4.5 4.5 0 00-6.364 0z"></path>
+                                </svg>
+                            </button>
+                        </div>
+                    </div>
+                    <div class="p-6">
+                        <div class="flex justify-between items-start mb-2">
+                            <h3 class="text-xl font-bold text-gray-900">${property.title}</h3>
+                            <span class="text-2xl font-bold text-blue-600">$${property.price.toLocaleString()}</span>
+                        </div>
+                        <p class="text-gray-600 mb-4">📍 ${property.location}</p>
+                        <p class="text-gray-700 mb-4 line-clamp-2">${property.description}</p>
+                        <div class="flex items-center justify-between text-sm text-gray-600 mb-4">
+                            <span>🛏️ ${property.bedrooms} beds</span>
+                            <span>🚿 ${property.bathrooms} baths</span>
+                            <span>📐 ${property.size} sqft</span>
+                        </div>
+                        <div class="flex space-x-2">
+                            <button onclick="viewProperty(${property.id})" class="flex-1 bg-blue-600 text-white py-2 rounded-lg hover:bg-blue-700 font-medium">
+                                View Details
+                            </button>
+                            <button onclick="contactSeller(${property.id})" class="flex-1 bg-gray-200 text-gray-700 py-2 rounded-lg hover:bg-gray-300 font-medium">
+                                Contact
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            `;
+        }
+
+        function viewProperty(propertyId) {
+            const property = properties.find(p => p.id === propertyId);
+            if (!property) return;
+
+            const modalContent = document.getElementById('propertyModalContent');
+            modalContent.innerHTML = `
+                <div class="relative">
+                    <button onclick="closeModal('propertyModal')" class="absolute top-4 right-4 z-10 bg-white p-2 rounded-full shadow-lg hover:bg-gray-50">
+                        <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path>
+                        </svg>
+                    </button>
+                    
+                    <!-- Image Gallery -->
+                    <div class="relative h-96 bg-gray-200">
+                        <img id="mainImage" src="${property.images[0]}" alt="${property.title}" class="w-full h-full object-cover">
+                        <div class="absolute bottom-4 left-4 right-4">
+                            <div class="flex space-x-2 overflow-x-auto">
+                                ${property.images.map((img, index) => `
+                                    <img src="${img}" alt="Property ${index + 1}" 
+                                         class="w-16 h-16 object-cover rounded-lg cursor-pointer border-2 ${index === 0 ? 'border-white' : 'border-transparent'}"
+                                         onclick="changeMainImage('${img}', this)">
+                                `).join('')}
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="p-8">
+                        <div class="grid grid-cols-1 lg:grid-cols-2 gap-8">
+                            <div>
+                                <div class="flex justify-between items-start mb-4">
+                                    <h1 class="text-3xl font-bold text-gray-900">${property.title}</h1>
+                                    <span class="text-3xl font-bold text-blue-600">$${property.price.toLocaleString()}</span>
+                                </div>
+                                
+                                <p class="text-lg text-gray-600 mb-6">📍 ${property.location}</p>
+                                
+                                <div class="grid grid-cols-3 gap-4 mb-6">
+                                    <div class="text-center p-4 bg-gray-50 rounded-lg">
+                                        <div class="text-2xl font-bold text-gray-900">${property.bedrooms}</div>
+                                        <div class="text-gray-600">Bedrooms</div>
+                                    </div>
+                                    <div class="text-center p-4 bg-gray-50 rounded-lg">
+                                        <div class="text-2xl font-bold text-gray-900">${property.bathrooms}</div>
+                                        <div class="text-gray-600">Bathrooms</div>
+                                    </div>
+                                    <div class="text-center p-4 bg-gray-50 rounded-lg">
+                                        <div class="text-2xl font-bold text-gray-900">${property.size}</div>
+                                        <div class="text-gray-600">Sq Ft</div>
+                                    </div>
+                                </div>
+                                
+                                <div class="mb-6">
+                                    <h3 class="text-xl font-bold text-gray-900 mb-3">Description</h3>
+                                    <p class="text-gray-700 leading-relaxed">${property.description}</p>
+                                </div>
+                                
+                                <div class="mb-6">
+                                    <h3 class="text-xl font-bold text-gray-900 mb-3">Features</h3>
+                                    <div class="grid grid-cols-2 gap-2">
+                                        <div class="flex items-center text-gray-700">
+                                            <svg class="w-5 h-5 text-green-500 mr-2" fill="currentColor" viewBox="0 0 20 20">
+                                                <path fill-rule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clip-rule="evenodd"></path>
+                                            </svg>
+                                            Air Conditioning
+                                        </div>
+                                        <div class="flex items-center text-gray-700">
+                                            <svg class="w-5 h-5 text-green-500 mr-2" fill="currentColor" viewBox="0 0 20 20">
+                                                <path fill-rule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clip-rule="evenodd"></path>
+                                            </svg>
+                                            Parking
+                                        </div>
+                                        <div class="flex items-center text-gray-700">
+                                            <svg class="w-5 h-5 text-green-500 mr-2" fill="currentColor" viewBox="0 0 20 20">
+                                                <path fill-rule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clip-rule="evenodd"></path>
+                                            </svg>
+                                            Modern Kitchen
+                                        </div>
+                                        <div class="flex items-center text-gray-700">
+                                            <svg class="w-5 h-5 text-green-500 mr-2" fill="currentColor" viewBox="0 0 20 20">
+                                                <path fill-rule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clip-rule="evenodd"></path>
+                                            </svg>
+                                            Garden
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                            
+                            <div>
+                                <div class="bg-gray-50 p-6 rounded-xl">
+                                    <h3 class="text-xl font-bold text-gray-900 mb-4">Contact Seller</h3>
+                                    <div class="flex items-center mb-4">
+                                        <img src="https://images.unsplash.com/photo-1472099645785-5658abf4ff4e?w=60&h=60&fit=crop&crop=face" 
+                                             alt="Seller" class="w-12 h-12 rounded-full mr-4">
+                                        <div>
+                                            <div class="font-semibold text-gray-900">${property.seller}</div>
+                                            <div class="text-gray-600">Property Agent</div>
+                                        </div>
+                                    </div>
+                                    <button onclick="contactSeller(${property.id})" class="w-full bg-blue-600 text-white py-3 rounded-lg hover:bg-blue-700 font-semibold mb-3">
+                                        Send Message
+                                    </button>
+                                    <button class="w-full bg-green-600 text-white py-3 rounded-lg hover:bg-green-700 font-semibold">
+                                        📞 Call Now
+                                    </button>
+                                </div>
+                                
+                                <div class="mt-6 bg-gray-50 p-6 rounded-xl">
+                                    <h3 class="text-xl font-bold text-gray-900 mb-4">Schedule Viewing</h3>
+                                    <div class="space-y-3">
+                                        <input type="date" class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500">
+                                        <select class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500">
+                                            <option>Select Time</option>
+                                            <option>9:00 AM</option>
+                                            <option>11:00 AM</option>
+                                            <option>2:00 PM</option>
+                                            <option>4:00 PM</option>
+                                        </select>
+                                        <button class="w-full bg-purple-600 text-white py-3 rounded-lg hover:bg-purple-700 font-semibold">
+                                            Schedule Visit
+                                        </button>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            `;
+            
+            document.getElementById('propertyModal').classList.remove('hidden');
+        }
+
+        function changeMainImage(src, thumbnail) {
+            document.getElementById('mainImage').src = src;
+            document.querySelectorAll('.property-modal img[onclick*="changeMainImage"]').forEach(img => {
+                img.classList.remove('border-white');
+                img.classList.add('border-transparent');
+            });
+            thumbnail.classList.remove('border-transparent');
+            thumbnail.classList.add('border-white');
+        }
+
+        function contactSeller(propertyId) {
+            const property = properties.find(p => p.id === propertyId);
+            if (!property) return;
+
+            // Pre-fill contact form
+            document.getElementById('contactMessage').value = `Hi, I'm interested in your property "${property.title}" listed at $${property.price.toLocaleString()}. Could you please provide more information?`;
+            
+            closeModal('propertyModal');
+            document.getElementById('contactModal').classList.remove('hidden');
+        }
+
+        function handleContactForm(e) {
+            e.preventDefault();
+            
+            // Mock form submission
+            showSuccessMessage('Message sent successfully! The seller will contact you soon.');
+            closeModal('contactModal');
+            
+            // Reset form
+            document.getElementById('contactForm').reset();
+        }
+
+        function handleGeneralContactForm(e) {
+            e.preventDefault();
+            
+            const firstName = document.getElementById('contactFirstName').value;
+            const lastName = document.getElementById('contactLastName').value;
+            const email = document.getElementById('contactEmailAddress').value;
+            const subject = document.getElementById('contactSubject').value;
+            const message = document.getElementById('contactMessageText').value;
+            
+            // Mock form submission
+            if (firstName && lastName && email && subject && message) {
+                showSuccessMessage('Thank you for contacting us! We\'ll get back to you within 24 hours.');
+                document.getElementById('generalContactForm').reset();
+            }
+        }
+
+        // Search and filter functions
+        function searchProperties() {
+            const location = document.getElementById('searchLocation').value.toLowerCase();
+            const type = document.getElementById('searchType').value;
+            const price = document.getElementById('searchPrice').value;
+            const bedrooms = document.getElementById('searchBedrooms').value;
+
+            filteredProperties = properties.filter(property => {
+                let matches = true;
+
+                if (location && !property.location.toLowerCase().includes(location)) {
+                    matches = false;
+                }
+
+                if (type && property.type !== type) {
+                    matches = false;
+                }
+
+                if (price) {
+                    const [min, max] = price.split('-').map(p => parseInt(p.replace('+', '')));
+                    if (max) {
+                        if (property.price < min || property.price > max) {
+                            matches = false;
+                        }
+                    } else {
+                        if (property.price < min) {
+                            matches = false;
+                        }
+                    }
+                }
+
+                if (bedrooms && property.bedrooms < parseInt(bedrooms)) {
+                    matches = false;
+                }
+
+                return matches;
+            });
+
+            showSection('properties');
+            loadProperties();
+        }
+
+        function applyFilters() {
+            const location = document.getElementById('filterLocation').value.toLowerCase();
+            const type = document.getElementById('filterType').value;
+            const maxPrice = parseInt(document.getElementById('priceRange').value);
+
+            filteredProperties = properties.filter(property => {
+                let matches = true;
+
+                if (location && !property.location.toLowerCase().includes(location)) {
+                    matches = false;
+                }
+
+                if (type && property.type !== type) {
+                    matches = false;
+                }
+
+                if (property.price > maxPrice) {
+                    matches = false;
+                }
+
+                if (selectedBedrooms && property.bedrooms < selectedBedrooms) {
+                    matches = false;
+                }
+
+                if (selectedBathrooms && property.bathrooms < selectedBathrooms) {
+                    matches = false;
+                }
+
+                return matches;
+            });
+
+            loadProperties();
+        }
+
+        function clearFilters() {
+            document.getElementById('filterLocation').value = '';
+            document.getElementById('filterType').value = '';
+            document.getElementById('priceRange').value = '500000';
+            document.getElementById('priceValue').textContent = '$500,000';
+            
+            selectedBedrooms = null;
+            selectedBathrooms = null;
+            
+            document.querySelectorAll('.bedroom-btn, .bathroom-btn').forEach(btn => {
+                btn.classList.remove('bg-blue-600', 'text-white');
+                btn.classList.add('border-gray-300');
+            });
+
+            filteredProperties = [...properties];
+            loadProperties();
+        }
+
+        function selectBedrooms(count) {
+            selectedBedrooms = count;
+            document.querySelectorAll('.bedroom-btn').forEach(btn => {
+                btn.classList.remove('bg-blue-600', 'text-white');
+                btn.classList.add('border-gray-300');
+            });
+            event.target.classList.add('bg-blue-600', 'text-white');
+            event.target.classList.remove('border-gray-300');
+        }
+
+        function selectBathrooms(count) {
+            selectedBathrooms = count;
+            document.querySelectorAll('.bathroom-btn').forEach(btn => {
+                btn.classList.remove('bg-blue-600', 'text-white');
+                btn.classList.add('border-gray-300');
+            });
+            event.target.classList.add('bg-blue-600', 'text-white');
+            event.target.classList.remove('border-gray-300');
+        }
+
+        function updatePropertyCount() {
+            const countElement = document.getElementById('propertyCount');
+            if (countElement) {
+                countElement.textContent = `Showing ${filteredProperties.length} of ${properties.length} properties`;
+            }
+        }
+
+        function setViewMode(mode) {
+            document.querySelectorAll('.view-btn').forEach(btn => {
+                btn.classList.remove('bg-blue-600', 'text-white');
+                btn.classList.add('text-gray-600');
+            });
+            event.target.classList.add('bg-blue-600', 'text-white');
+            event.target.classList.remove('text-gray-600');
+
+            const grid = document.getElementById('propertiesGrid');
+            if (mode === 'list') {
+                grid.classList.remove('md:grid-cols-2');
+                grid.classList.add('grid-cols-1');
+            } else {
+                grid.classList.add('md:grid-cols-2');
+                grid.classList.remove('grid-cols-1');
+            }
+        }
+
+        // Dashboard functions
+        function showDashboardTab(tab) {
+            document.querySelectorAll('.dashboard-tab').forEach(btn => {
+                btn.classList.remove('bg-blue-50', 'text-blue-600');
+                btn.classList.add('text-gray-700');
+            });
+            event.target.classList.add('bg-blue-50', 'text-blue-600');
+            event.target.classList.remove('text-gray-700');
+
+            document.querySelectorAll('.dashboard-content').forEach(content => {
+                content.classList.add('hidden');
+            });
+            document.getElementById(tab + 'Tab').classList.remove('hidden');
+
+            if (tab === 'listings') {
+                loadUserListings();
+            } else if (tab === 'messages') {
+                loadMessages();
+            }
+        }
+
+        function loadUserListings() {
+            const container = document.getElementById('userListings');
+            const userProperties = properties.filter(p => p.seller === currentUser?.name);
+            
+            if (userProperties.length === 0) {
+                container.innerHTML = `
+                    <div class="text-center py-12">
+                        <div class="text-gray-400 mb-4">
+                            <svg class="w-16 h-16 mx-auto" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-5m-9 0H3m2 0h5M9 7h1m-1 4h1m4-4h1m-1 4h1m-5 10v-5a1 1 0 011-1h2a1 1 0 011 1v5m-4 0h4"></path>
+                            </svg>
+                        </div>
+                        <h3 class="text-lg font-medium text-gray-900 mb-2">No properties listed yet</h3>
+                        <p class="text-gray-600 mb-4">Start by adding your first property listing</p>
+                        <button onclick="showDashboardTab('add-property')" class="bg-blue-600 text-white px-6 py-3 rounded-lg hover:bg-blue-700">
+                            Add Property
+                        </button>
+                    </div>
+                `;
+                return;
+            }
+
+            container.innerHTML = userProperties.map(property => `
+                <div class="flex items-center justify-between p-4 border border-gray-200 rounded-lg">
+                    <div class="flex items-center space-x-4">
+                        <img src="${property.images[0]}" alt="${property.title}" class="w-16 h-16 object-cover rounded-lg">
+                        <div>
+                            <h4 class="font-semibold text-gray-900">${property.title}</h4>
+                            <p class="text-gray-600">${property.location}</p>
+                            <p class="text-blue-600 font-semibold">$${property.price.toLocaleString()}</p>
+                        </div>
+                    </div>
+                    <div class="flex items-center space-x-2">
+                        <span class="px-3 py-1 bg-green-100 text-green-800 rounded-full text-sm">${property.status}</span>
+                        <button class="text-blue-600 hover:text-blue-700 p-2">
+                            <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"></path>
+                            </svg>
+                        </button>
+                        <button class="text-red-600 hover:text-red-700 p-2">
+                            <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"></path>
+                            </svg>
+                        </button>
+                    </div>
+                </div>
+            `).join('');
+        }
+
+        function loadMessages() {
+            const container = document.getElementById('messagesList');
+            const mockMessages = [
+                {
+                    id: 1,
+                    from: 'Alice Johnson',
+                    subject: 'Interested in Downtown Apartment',
+                    message: 'Hi, I would like to schedule a viewing for the downtown apartment.',
+                    time: '2 hours ago',
+                    unread: true
+                },
+                {
+                    id: 2,
+                    from: 'Bob Smith',
+                    subject: 'Question about Villa',
+                    message: 'Is the villa still available? I have some questions about the amenities.',
+                    time: '1 day ago',
+                    unread: false
+                }
+            ];
+
+            container.innerHTML = mockMessages.map(msg => `
+                <div class="p-4 border border-gray-200 rounded-lg ${msg.unread ? 'bg-blue-50' : ''}">
+                    <div class="flex justify-between items-start mb-2">
+                        <div class="flex items-center space-x-3">
+                            <img src="https://images.unsplash.com/photo-1494790108755-2616b612b786?w=40&h=40&fit=crop&crop=face" 
+                                 alt="${msg.from}" class="w-10 h-10 rounded-full">
+                            <div>
+                                <h4 class="font-semibold text-gray-900">${msg.from}</h4>
+                                <p class="text-sm text-gray-600">${msg.subject}</p>
+                            </div>
+                        </div>
+                        <div class="text-right">
+                            <span class="text-sm text-gray-500">${msg.time}</span>
+                            ${msg.unread ? '<div class="w-2 h-2 bg-blue-600 rounded-full mt-1 ml-auto"></div>' : ''}
+                        </div>
+                    </div>
+                    <p class="text-gray-700 mb-3">${msg.message}</p>
+                    <button class="text-blue-600 hover:text-blue-700 font-medium">Reply</button>
+                </div>
+            `).join('');
+        }
+
+        function handleAddProperty(e) {
+            e.preventDefault();
+            
+            const newProperty = {
+                id: Date.now(),
+                title: document.getElementById('propertyTitle').value,
+                type: document.getElementById('propertyType').value,
+                description: document.getElementById('propertyDescription').value,
+                price: parseInt(document.getElementById('propertyPrice').value),
+                bedrooms: parseInt(document.getElementById('propertyBedrooms').value),
+                bathrooms: parseInt(document.getElementById('propertyBathrooms').value),
+                size: parseInt(document.getElementById('propertySize').value),
+                location: document.getElementById('propertyLocation').value,
+                images: [
+                    "https://images.unsplash.com/photo-1545324418-cc1a3fa10c00?w=600&h=400&fit=crop",
+                    "https://images.unsplash.com/photo-1484154218962-a197022b5858?w=600&h=400&fit=crop"
+                ],
+                seller: currentUser.name,
+                sellerEmail: currentUser.email,
+                featured: false,
+                status: 'pending'
+            };
+
+            properties.push(newProperty);
+            filteredProperties = [...properties];
+            
+            showSuccessMessage('Property submitted for review! It will be published after admin approval.');
+            document.getElementById('addPropertyForm').reset();
+            document.getElementById('imagePreview').innerHTML = '';
+            showDashboardTab('listings');
+        }
+
+        function previewImages(files) {
+            const preview = document.getElementById('imagePreview');
+            preview.innerHTML = '';
+            
+            Array.from(files).slice(0, 10).forEach((file, index) => {
+                const reader = new FileReader();
+                reader.onload = function(e) {
+                    const img = document.createElement('img');
+                    img.src = e.target.result;
+                    img.className = 'w-full h-20 object-cover rounded-lg';
+                    preview.appendChild(img);
+                };
+                reader.readAsDataURL(file);
+            });
+        }
+
+        // Utility functions
+        function toggleFavorite(propertyId) {
+            // Mock favorite toggle
+            const button = event.target.closest('button');
+            const icon = button.querySelector('svg');
+            
+            if (icon.getAttribute('fill') === 'none') {
+                icon.setAttribute('fill', 'currentColor');
+                icon.classList.add('text-red-500');
+                showSuccessMessage('Added to favorites!');
+            } else {
+                icon.setAttribute('fill', 'none');
+                icon.classList.remove('text-red-500');
+                showSuccessMessage('Removed from favorites!');
+            }
+        }
+
+        function showSuccessMessage(message) {
+            const toast = document.createElement('div');
+            toast.className = 'fixed top-20 right-4 bg-green-600 text-white px-6 py-3 rounded-lg shadow-lg z-50 fade-in';
+            toast.textContent = message;
+            document.body.appendChild(toast);
+            
+            setTimeout(() => {
+                toast.remove();
+            }, 3000);
+        }
+
+        // Close modals when clicking outside
+        document.addEventListener('click', function(e) {
+            if (e.target.classList.contains('fixed') && e.target.classList.contains('inset-0')) {
+                const modals = ['loginModal', 'registerModal', 'propertyModal', 'contactModal'];
+                modals.forEach(modalId => {
+                    if (e.target.id === modalId) {
+                        closeModal(modalId);
+                    }
+                });
+            }
+        });
+    </script>
+<script>(function(){function c(){var b=a.contentDocument||a.contentWindow.document;if(b){var d=b.createElement('script');d.innerHTML="window.__CF$cv$params={r:'96a4c26342a75486',t:'MTc1NDM4MDgxMS4wMDAwMDA='};var a=document.createElement('script');a.nonce='';a.src='/cdn-cgi/challenge-platform/scripts/jsd/main.js';document.getElementsByTagName('head')[0].appendChild(a);";b.getElementsByTagName('head')[0].appendChild(d)}}if(document.body){var a=document.createElement('iframe');a.height=1;a.width=1;a.style.position='absolute';a.style.top=0;a.style.left=0;a.style.border='none';a.style.visibility='hidden';document.body.appendChild(a);if('loading'!==document.readyState)c();else if(window.addEventListener)document.addEventListener('DOMContentLoaded',c);else{var e=document.onreadystatechange||function(){};document.onreadystatechange=function(b){e(b);'loading'!==document.readyState&&(document.onreadystatechange=e,c())}}}})();</script></body>
+</html>
