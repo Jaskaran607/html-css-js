@@ -1,0 +1,1679 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Prime Video - Watch Movies, TV Shows & Originals</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <style>
+        /* Custom CSS Variables */
+        :root {
+            --prime-blue: #00a8e1;
+            --prime-dark: #0f171e;
+            --prime-gray: #1a242f;
+            --prime-light-gray: #232f3e;
+            --prime-text: #ffffff;
+            --prime-secondary: #aab7c4;
+            --prime-accent: #ff9900;
+        }
+
+        * {
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Amazon Ember', 'Helvetica Neue', Helvetica, Arial, sans-serif;
+            background-color: var(--prime-dark);
+            color: var(--prime-text);
+            margin: 0;
+            padding: 0;
+            overflow-x: hidden;
+        }
+
+        /* Hero Section Styles */
+        .hero-section {
+            position: relative;
+            height: 100vh;
+            background: linear-gradient(135deg, #0f171e 0%, #1a242f 100%);
+            overflow: hidden;
+            padding-top: 64px; /* Add space for fixed navbar */
+        }
+
+        .hero-background {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(
+                rgba(15, 23, 30, 0.7),
+                rgba(15, 23, 30, 0.8)
+            ), url('https://images.unsplash.com/photo-1489599735734-79b4212bea40?ixlib=rb-4.0.3&auto=format&fit=crop&w=1920&q=80') center/cover;
+            z-index: 1;
+        }
+
+        .hero-content {
+            position: relative;
+            z-index: 2;
+            height: 100%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            text-align: center;
+            padding: 0 20px;
+        }
+
+        /* Navigation Styles */
+        .navbar {
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            z-index: 1000;
+            background: rgba(15, 23, 30, 0.95);
+            backdrop-filter: blur(10px);
+            transition: all 0.3s ease;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+        }
+
+        .navbar.scrolled {
+            background: rgba(15, 23, 30, 0.98);
+            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.5);
+        }
+
+        /* Content Grid Styles */
+        .content-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(220px, 1fr));
+            gap: 20px;
+            padding: 20px 0;
+        }
+
+        .content-card {
+            position: relative;
+            border-radius: 12px;
+            overflow: hidden;
+            transition: all 0.3s ease;
+            cursor: pointer;
+            aspect-ratio: 16/9;
+            background: linear-gradient(135deg, #232f3e, #1a242f);
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.3);
+        }
+
+        .content-card:hover {
+            transform: scale(1.05) translateY(-5px);
+            box-shadow: 0 15px 40px rgba(0, 168, 225, 0.4);
+            z-index: 10;
+        }
+
+        .content-card img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+            transition: transform 0.3s ease;
+        }
+
+        .content-card:hover img {
+            transform: scale(1.1);
+        }
+
+        .content-overlay {
+            position: absolute;
+            bottom: 0;
+            left: 0;
+            right: 0;
+            background: linear-gradient(transparent, rgba(0, 0, 0, 0.9));
+            padding: 20px;
+            transform: translateY(100%);
+            transition: transform 0.3s ease;
+        }
+
+        .content-card:hover .content-overlay {
+            transform: translateY(0);
+        }
+
+        .content-info {
+            position: absolute;
+            top: 10px;
+            right: 10px;
+            background: rgba(0, 0, 0, 0.8);
+            padding: 4px 8px;
+            border-radius: 6px;
+            font-size: 12px;
+            font-weight: bold;
+        }
+
+        /* Carousel Styles */
+        .carousel-container {
+            position: relative;
+            overflow: hidden;
+            margin: 30px 0;
+        }
+
+        .carousel-track {
+            display: flex;
+            transition: transform 0.5s ease;
+            gap: 20px;
+        }
+
+        .carousel-item {
+            flex: 0 0 auto;
+            width: 320px;
+        }
+
+        .carousel-btn {
+            position: absolute;
+            top: 50%;
+            transform: translateY(-50%);
+            background: rgba(0, 0, 0, 0.8);
+            border: 2px solid rgba(255, 255, 255, 0.2);
+            color: white;
+            padding: 15px;
+            cursor: pointer;
+            border-radius: 50%;
+            transition: all 0.3s ease;
+            z-index: 10;
+            width: 50px;
+            height: 50px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .carousel-btn:hover {
+            background: rgba(0, 168, 225, 0.9);
+            border-color: var(--prime-blue);
+            transform: translateY(-50%) scale(1.1);
+        }
+
+        .carousel-btn.prev {
+            left: 15px;
+        }
+
+        .carousel-btn.next {
+            right: 15px;
+        }
+
+        /* Modal Styles */
+        .modal {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.95);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            z-index: 2000;
+            opacity: 0;
+            visibility: hidden;
+            transition: all 0.3s ease;
+        }
+
+        .modal.active {
+            opacity: 1;
+            visibility: visible;
+        }
+
+        .modal-content {
+            background: var(--prime-gray);
+            border-radius: 16px;
+            max-width: 900px;
+            width: 90%;
+            max-height: 90vh;
+            overflow-y: auto;
+            transform: scale(0.8);
+            transition: transform 0.3s ease;
+            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.8);
+        }
+
+        .modal.active .modal-content {
+            transform: scale(1);
+        }
+
+        /* Category Pills */
+        .category-pills {
+            display: flex;
+            gap: 12px;
+            padding: 25px 0;
+            overflow-x: auto;
+            scrollbar-width: none;
+            -ms-overflow-style: none;
+        }
+
+        .category-pills::-webkit-scrollbar {
+            display: none;
+        }
+
+        .category-pill {
+            flex: 0 0 auto;
+            padding: 10px 20px;
+            background: rgba(255, 255, 255, 0.1);
+            border: 2px solid rgba(255, 255, 255, 0.2);
+            border-radius: 25px;
+            color: white;
+            text-decoration: none;
+            transition: all 0.3s ease;
+            white-space: nowrap;
+            font-weight: 500;
+        }
+
+        .category-pill:hover,
+        .category-pill.active {
+            background: var(--prime-blue);
+            border-color: var(--prime-blue);
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(0, 168, 225, 0.4);
+        }
+
+        /* Search Styles */
+        .search-container {
+            position: relative;
+            max-width: 500px;
+            width: 100%;
+        }
+
+        .search-input {
+            width: 100%;
+            padding: 12px 50px 12px 20px;
+            background: rgba(255, 255, 255, 0.1);
+            border: 2px solid rgba(255, 255, 255, 0.2);
+            border-radius: 25px;
+            color: white;
+            font-size: 16px;
+            transition: all 0.3s ease;
+        }
+
+        .search-input:focus {
+            outline: none;
+            border-color: var(--prime-blue);
+            background: rgba(255, 255, 255, 0.15);
+            box-shadow: 0 0 0 3px rgba(0, 168, 225, 0.2);
+        }
+
+        .search-input::placeholder {
+            color: rgba(255, 255, 255, 0.6);
+        }
+
+        .search-btn {
+            position: absolute;
+            right: 15px;
+            top: 50%;
+            transform: translateY(-50%);
+            background: none;
+            border: none;
+            color: rgba(255, 255, 255, 0.7);
+            cursor: pointer;
+            transition: color 0.3s ease;
+        }
+
+        .search-btn:hover {
+            color: var(--prime-blue);
+        }
+
+        /* Button Styles */
+        .btn-primary {
+            background: linear-gradient(135deg, #00a8e1, #0088cc);
+            border: none;
+            color: white;
+            padding: 12px 24px;
+            border-radius: 8px;
+            font-weight: 600;
+            transition: all 0.3s ease;
+            cursor: pointer;
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .btn-primary:hover {
+            background: linear-gradient(135deg, #0088cc, #006699);
+            transform: translateY(-2px);
+            box-shadow: 0 8px 25px rgba(0, 168, 225, 0.4);
+        }
+
+        .btn-secondary {
+            background: transparent;
+            border: 2px solid white;
+            color: white;
+            padding: 12px 24px;
+            border-radius: 8px;
+            font-weight: 600;
+            transition: all 0.3s ease;
+            cursor: pointer;
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .btn-secondary:hover {
+            background: white;
+            color: black;
+            transform: translateY(-2px);
+        }
+
+        /* Section Headers */
+        .section-header {
+            margin-bottom: 30px;
+            padding-bottom: 15px;
+            border-bottom: 2px solid rgba(255, 255, 255, 0.1);
+        }
+
+        .section-title {
+            font-size: 2.5rem;
+            font-weight: 700;
+            margin-bottom: 10px;
+            background: linear-gradient(135deg, #ffffff, #aab7c4);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+
+        .section-subtitle {
+            font-size: 1.2rem;
+            color: var(--prime-secondary);
+            font-weight: 400;
+        }
+
+        /* Responsive Design */
+        @media (max-width: 1024px) {
+            .content-grid {
+                grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+                gap: 15px;
+            }
+            
+            .carousel-item {
+                width: 280px;
+            }
+        }
+
+        @media (max-width: 768px) {
+            .hero-content h1 {
+                font-size: 2.5rem;
+            }
+            
+            .content-grid {
+                grid-template-columns: repeat(auto-fill, minmax(160px, 1fr));
+                gap: 12px;
+            }
+            
+            .carousel-item {
+                width: 220px;
+            }
+            
+            .section-title {
+                font-size: 2rem;
+            }
+            
+            .carousel-btn {
+                width: 40px;
+                height: 40px;
+                padding: 10px;
+            }
+        }
+
+        @media (max-width: 640px) {
+            .hero-content h1 {
+                font-size: 2rem;
+            }
+            
+            .hero-content p {
+                font-size: 1rem;
+            }
+            
+            .content-grid {
+                grid-template-columns: repeat(auto-fill, minmax(140px, 1fr));
+                gap: 10px;
+            }
+            
+            .carousel-item {
+                width: 180px;
+            }
+            
+            .category-pills {
+                padding: 20px 0;
+            }
+            
+            .category-pill {
+                padding: 8px 16px;
+                font-size: 14px;
+            }
+            
+            .section-title {
+                font-size: 1.8rem;
+            }
+        }
+
+        /* Animation Classes */
+        .fade-in {
+            animation: fadeIn 0.8s ease-out;
+        }
+
+        .slide-up {
+            animation: slideUp 0.8s ease-out;
+        }
+
+        .scale-in {
+            animation: scaleIn 0.6s ease-out;
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; }
+            to { opacity: 1; }
+        }
+
+        @keyframes slideUp {
+            from { 
+                opacity: 0;
+                transform: translateY(40px);
+            }
+            to { 
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        @keyframes scaleIn {
+            from { 
+                opacity: 0;
+                transform: scale(0.9);
+            }
+            to { 
+                opacity: 1;
+                transform: scale(1);
+            }
+        }
+
+        /* Loading Animation */
+        .loading {
+            display: inline-block;
+            width: 24px;
+            height: 24px;
+            border: 3px solid rgba(255, 255, 255, 0.3);
+            border-radius: 50%;
+            border-top-color: var(--prime-blue);
+            animation: spin 1s ease-in-out infinite;
+        }
+
+        @keyframes spin {
+            to { transform: rotate(360deg); }
+        }
+
+        /* Custom Scrollbar */
+        ::-webkit-scrollbar {
+            width: 10px;
+        }
+
+        ::-webkit-scrollbar-track {
+            background: var(--prime-gray);
+            border-radius: 5px;
+        }
+
+        ::-webkit-scrollbar-thumb {
+            background: linear-gradient(135deg, var(--prime-blue), #0088cc);
+            border-radius: 5px;
+        }
+
+        ::-webkit-scrollbar-thumb:hover {
+            background: linear-gradient(135deg, #0088cc, #006699);
+        }
+
+        /* Empty State Styles */
+        .empty-state {
+            text-align: center;
+            padding: 60px 20px;
+            color: var(--prime-secondary);
+        }
+
+        .empty-state svg {
+            margin-bottom: 20px;
+            opacity: 0.6;
+        }
+
+        .empty-state h3 {
+            font-size: 1.5rem;
+            margin-bottom: 10px;
+            color: white;
+        }
+
+        .empty-state p {
+            margin-bottom: 20px;
+            font-size: 1.1rem;
+        }
+
+        /* Rating Badge */
+        .rating-badge {
+            display: inline-flex;
+            align-items: center;
+            background: rgba(255, 193, 7, 0.2);
+            color: #ffc107;
+            padding: 4px 8px;
+            border-radius: 6px;
+            font-size: 0.9rem;
+            font-weight: 600;
+        }
+
+        /* Genre Badge */
+        .genre-badge {
+            display: inline-block;
+            background: rgba(0, 168, 225, 0.2);
+            color: var(--prime-blue);
+            padding: 4px 12px;
+            border-radius: 15px;
+            font-size: 0.8rem;
+            font-weight: 500;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+    </style>
+</head>
+<body>
+    <!-- Navigation -->
+    <nav class="navbar">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="flex items-center justify-between h-16">
+                <!-- Logo -->
+                <div class="flex items-center">
+                    <div class="flex-shrink-0">
+                        <svg class="w-28 h-10" viewBox="0 0 140 40" fill="currentColor">
+                            <defs>
+                                <linearGradient id="logoGradient" x1="0%" y1="0%" x2="100%" y2="0%">
+                                    <stop offset="0%" style="stop-color:#00a8e1"/>
+                                    <stop offset="100%" style="stop-color:#0088cc"/>
+                                </linearGradient>
+                            </defs>
+                            <path fill="url(#logoGradient)" d="M8.84 25.12c-1.12 0-2.04-.92-2.04-2.04s.92-2.04 2.04-2.04 2.04.92 2.04 2.04-.92 2.04-2.04 2.04zm0-3.36c-.72 0-1.32.6-1.32 1.32s.6 1.32 1.32 1.32 1.32-.6 1.32-1.32-.6-1.32-1.32-1.32z"/>
+                            <path fill="url(#logoGradient)" d="M24.84 13.04h-4.8v12h4.8c3.36 0 6-2.64 6-6s-2.64-6-6-6zm0 10.8h-3.6v-9.6h3.6c2.64 0 4.8 2.16 4.8 4.8s-2.16 4.8-4.8 4.8z"/>
+                            <text x="40" y="25" font-family="Arial, sans-serif" font-size="16" font-weight="bold" fill="white">Prime Video</text>
+                        </svg>
+                    </div>
+                </div>
+
+                <!-- Desktop Navigation -->
+                <div class="hidden md:block">
+                    <div class="ml-10 flex items-baseline space-x-8">
+                        <a href="#" onclick="showSection('home')" class="nav-link text-white hover:text-blue-400 px-3 py-2 text-sm font-medium transition-colors duration-200">Home</a>
+                        <a href="#" onclick="showSection('movies')" class="nav-link text-gray-300 hover:text-white px-3 py-2 text-sm font-medium transition-colors duration-200">Movies</a>
+                        <a href="#" onclick="showSection('tv-shows')" class="nav-link text-gray-300 hover:text-white px-3 py-2 text-sm font-medium transition-colors duration-200">TV Shows</a>
+                        <a href="#" onclick="showSection('originals')" class="nav-link text-gray-300 hover:text-white px-3 py-2 text-sm font-medium transition-colors duration-200">Originals</a>
+                        <a href="#" onclick="showSection('watchlist')" class="nav-link text-gray-300 hover:text-white px-3 py-2 text-sm font-medium transition-colors duration-200">My List</a>
+                    </div>
+                </div>
+
+                <!-- Search and Profile -->
+                <div class="flex items-center space-x-4">
+                    <div class="search-container hidden sm:block">
+                        <input type="text" class="search-input" placeholder="Search movies, TV shows..." id="searchInput">
+                        <button class="search-btn" onclick="performSearch()">
+                            <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"/>
+                            </svg>
+                        </button>
+                    </div>
+                    
+                    <div class="relative">
+                        <button class="flex items-center space-x-2 text-white hover:text-blue-400 transition-colors duration-200" onclick="toggleProfileMenu()">
+                            <div class="w-8 h-8 bg-gradient-to-br from-blue-600 to-blue-800 rounded-full flex items-center justify-center">
+                                <svg class="w-5 h-5" fill="currentColor" viewBox="0 0 20 20">
+                                    <path fill-rule="evenodd" d="M10 9a3 3 0 100-6 3 3 0 000 6zm-7 9a7 7 0 1114 0H3z" clip-rule="evenodd"/>
+                                </svg>
+                            </div>
+                            <span class="hidden sm:block">Profile</span>
+                        </button>
+                        
+                        <!-- Profile Dropdown -->
+                        <div id="profileMenu" class="absolute right-0 mt-2 w-48 bg-gray-800 rounded-md shadow-lg py-1 z-50 hidden border border-gray-700">
+                            <a href="#" class="block px-4 py-2 text-sm text-gray-300 hover:bg-gray-700 hover:text-white transition-colors duration-200">Your Account</a>
+                            <a href="#" class="block px-4 py-2 text-sm text-gray-300 hover:bg-gray-700 hover:text-white transition-colors duration-200">Settings</a>
+                            <a href="#" class="block px-4 py-2 text-sm text-gray-300 hover:bg-gray-700 hover:text-white transition-colors duration-200">Help</a>
+                            <div class="border-t border-gray-700"></div>
+                            <a href="#" class="block px-4 py-2 text-sm text-gray-300 hover:bg-gray-700 hover:text-white transition-colors duration-200">Sign Out</a>
+                        </div>
+                    </div>
+
+                    <!-- Mobile Menu Button -->
+                    <button class="md:hidden text-white hover:text-blue-400" onclick="toggleMobileMenu()">
+                        <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16"/>
+                        </svg>
+                    </button>
+                </div>
+            </div>
+        </div>
+
+        <!-- Mobile Menu -->
+        <div id="mobileMenu" class="md:hidden hidden">
+            <div class="px-2 pt-2 pb-3 space-y-1 sm:px-3 bg-gray-900 border-t border-gray-700">
+                <a href="#" onclick="showSection('home')" class="text-white block px-3 py-2 text-base font-medium">Home</a>
+                <a href="#" onclick="showSection('movies')" class="text-gray-300 hover:text-white block px-3 py-2 text-base font-medium">Movies</a>
+                <a href="#" onclick="showSection('tv-shows')" class="text-gray-300 hover:text-white block px-3 py-2 text-base font-medium">TV Shows</a>
+                <a href="#" onclick="showSection('originals')" class="text-gray-300 hover:text-white block px-3 py-2 text-base font-medium">Originals</a>
+                <a href="#" onclick="showSection('watchlist')" class="text-gray-300 hover:text-white block px-3 py-2 text-base font-medium">My List</a>
+                <div class="px-3 py-2">
+                    <input type="text" class="search-input w-full" placeholder="Search...">
+                </div>
+            </div>
+        </div>
+    </nav>
+
+    <!-- Main Content -->
+    <main>
+        <!-- Home Section -->
+        <section id="home-section" class="section active">
+            <!-- Hero Section with Featured Content -->
+            <div class="relative min-h-screen bg-gradient-to-b from-gray-900 to-black pt-16">
+                <!-- Featured Movie Background -->
+                <div class="absolute inset-0">
+                    <img src="https://images.unsplash.com/photo-1489599735734-79b4212bea40?ixlib=rb-4.0.3&auto=format&fit=crop&w=1920&q=80" 
+                         alt="Featured Content" 
+                         class="w-full h-full object-cover opacity-40"
+                         onerror="this.style.display='none';">
+                    <div class="absolute inset-0 bg-gradient-to-r from-black via-black/70 to-transparent"></div>
+                    <div class="absolute inset-0 bg-gradient-to-t from-black via-transparent to-transparent"></div>
+                </div>
+
+                <!-- Hero Content -->
+                <div class="relative z-10 flex items-center min-h-screen">
+                    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 w-full">
+                        <div class="max-w-2xl">
+                            <!-- Prime Original Badge -->
+                            <div class="flex items-center mb-4">
+                                <div class="bg-blue-600 text-white px-3 py-1 rounded text-sm font-bold mr-3">
+                                    PRIME ORIGINAL
+                                </div>
+                                <div class="text-gray-300 text-sm">New Episode</div>
+                            </div>
+
+                            <!-- Title -->
+                            <h1 class="text-5xl md:text-7xl font-bold mb-6 text-white leading-tight">
+                                The Boys
+                            </h1>
+
+                            <!-- Description -->
+                            <p class="text-xl md:text-2xl text-gray-300 mb-8 leading-relaxed">
+                                A group of vigilantes set out to take down corrupt superheroes who abuse their superpowers in this dark and gritty series.
+                            </p>
+
+                            <!-- Rating and Info -->
+                            <div class="flex items-center space-x-6 mb-8">
+                                <div class="flex items-center">
+                                    <svg class="w-5 h-5 text-yellow-400 mr-1" fill="currentColor" viewBox="0 0 20 20">
+                                        <path d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.07 3.292a1 1 0 00.95.69h3.462c.969 0 1.371 1.24.588 1.81l-2.8 2.034a1 1 0 00-.364 1.118l1.07 3.292c.3.921-.755 1.688-1.54 1.118l-2.8-2.034a1 1 0 00-1.175 0l-2.8 2.034c-.784.57-1.838-.197-1.539-1.118l1.07-3.292a1 1 0 00-.364-1.118L2.98 8.72c-.783-.57-.38-1.81.588-1.81h3.461a1 1 0 00.951-.69l1.07-3.292z"/>
+                                    </svg>
+                                    <span class="text-white font-semibold">8.7</span>
+                                </div>
+                                <span class="text-gray-300">2019</span>
+                                <span class="text-gray-300">4 Seasons</span>
+                                <span class="bg-gray-700 text-white px-2 py-1 rounded text-sm">18+</span>
+                            </div>
+
+                            <!-- Action Buttons -->
+                            <div class="flex flex-col sm:flex-row gap-4">
+                                <button onclick="playContent(2)" class="btn-primary text-lg px-8 py-4 flex items-center justify-center">
+                                    <svg class="w-6 h-6 mr-2" fill="currentColor" viewBox="0 0 24 24">
+                                        <path d="M8 5v14l11-7z"/>
+                                    </svg>
+                                    Watch Now
+                                </button>
+                                <button onclick="toggleWatchlist(2)" class="btn-secondary text-lg px-8 py-4 flex items-center justify-center">
+                                    <svg class="w-6 h-6 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6v6m0 0v6m0-6h6m-6 0H6"/>
+                                    </svg>
+                                    Add to Watchlist
+                                </button>
+                                <button onclick="openModal(2)" class="bg-gray-800 hover:bg-gray-700 text-white text-lg px-8 py-4 rounded-lg transition-all duration-300 flex items-center justify-center">
+                                    <svg class="w-6 h-6 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/>
+                                    </svg>
+                                    More Info
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Content Sections -->
+            <div class="bg-black">
+                <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-16">
+                    <!-- Trending Now -->
+                    <div class="mb-16">
+                        <h2 class="text-3xl font-bold text-white mb-8">Trending Now</h2>
+                        <div class="carousel-container">
+                            <button class="carousel-btn prev" onclick="scrollCarousel('trending', -1)">
+                                <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7"/>
+                                </svg>
+                            </button>
+                            <div class="carousel-track" id="trending-carousel">
+                                <!-- Trending content will be populated by JavaScript -->
+                            </div>
+                            <button class="carousel-btn next" onclick="scrollCarousel('trending', 1)">
+                                <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"/>
+                                </svg>
+                            </button>
+                        </div>
+                    </div>
+
+                    <!-- Prime Originals -->
+                    <div class="mb-16">
+                        <h2 class="text-3xl font-bold text-white mb-8">Prime Originals</h2>
+                        <div class="carousel-container">
+                            <button class="carousel-btn prev" onclick="scrollCarousel('originals', -1)">
+                                <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7"/>
+                                </svg>
+                            </button>
+                            <div class="carousel-track" id="originals-carousel">
+                                <!-- Originals content will be populated by JavaScript -->
+                            </div>
+                            <button class="carousel-btn next" onclick="scrollCarousel('originals', 1)">
+                                <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"/>
+                                </svg>
+                            </button>
+                        </div>
+                    </div>
+
+                    <!-- Continue Watching -->
+                    <div class="mb-16">
+                        <h2 class="text-3xl font-bold text-white mb-8">Continue Watching</h2>
+                        <div class="grid grid-cols-2 md:grid-cols-4 lg:grid-cols-6 gap-4">
+                            <div class="relative group cursor-pointer" onclick="playContent(1)">
+                                <div class="aspect-video bg-gradient-to-br from-blue-900 to-purple-900 rounded-lg overflow-hidden">
+                                    <img src="https://images.unsplash.com/photo-1518709268805-4e9042af2176?ixlib=rb-4.0.3&auto=format&fit=crop&w=400&q=80" 
+                                         alt="The Tomorrow War" 
+                                         class="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300"
+                                         onerror="this.style.display='none';">
+                                    <div class="absolute inset-0 bg-black bg-opacity-40 group-hover:bg-opacity-20 transition-all duration-300"></div>
+                                    <div class="absolute bottom-0 left-0 right-0 h-2 bg-gray-700">
+                                        <div class="h-full bg-blue-600 w-1/3"></div>
+                                    </div>
+                                    <div class="absolute inset-0 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity duration-300">
+                                        <svg class="w-12 h-12 text-white" fill="currentColor" viewBox="0 0 24 24">
+                                            <path d="M8 5v14l11-7z"/>
+                                        </svg>
+                                    </div>
+                                </div>
+                                <h3 class="text-white font-semibold mt-2 text-sm">The Tomorrow War</h3>
+                                <p class="text-gray-400 text-xs">33 min left</p>
+                            </div>
+                            
+                            <div class="relative group cursor-pointer" onclick="playContent(19)">
+                                <div class="aspect-video bg-gradient-to-br from-purple-900 to-pink-900 rounded-lg overflow-hidden">
+                                    <img src="https://images.unsplash.com/photo-1518709268805-4e9042af2176?ixlib=rb-4.0.3&auto=format&fit=crop&w=400&q=80" 
+                                         alt="The Expanse" 
+                                         class="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300"
+                                         onerror="this.style.display='none';">
+                                    <div class="absolute inset-0 bg-black bg-opacity-40 group-hover:bg-opacity-20 transition-all duration-300"></div>
+                                    <div class="absolute bottom-0 left-0 right-0 h-2 bg-gray-700">
+                                        <div class="h-full bg-blue-600 w-3/4"></div>
+                                    </div>
+                                    <div class="absolute inset-0 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity duration-300">
+                                        <svg class="w-12 h-12 text-white" fill="currentColor" viewBox="0 0 24 24">
+                                            <path d="M8 5v14l11-7z"/>
+                                        </svg>
+                                    </div>
+                                </div>
+                                <h3 class="text-white font-semibold mt-2 text-sm">The Expanse</h3>
+                                <p class="text-gray-400 text-xs">12 min left</p>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Recently Added -->
+                    <div class="mb-16">
+                        <h2 class="text-3xl font-bold text-white mb-8">Recently Added</h2>
+                        <div class="content-grid" id="recent-grid">
+                            <!-- Recent content will be populated by JavaScript -->
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- Movies Section -->
+        <section id="movies-section" class="section hidden">
+            <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-24 pt-32">
+                <div class="section-header">
+                    <h1 class="section-title">Movies</h1>
+                    <p class="section-subtitle">Discover thousands of movies from every genre</p>
+                </div>
+                
+                <!-- Category Pills -->
+                <div class="category-pills">
+                    <a href="#" class="category-pill active" onclick="filterMovies('all')">All Movies</a>
+                    <a href="#" class="category-pill" onclick="filterMovies('action')">Action</a>
+                    <a href="#" class="category-pill" onclick="filterMovies('comedy')">Comedy</a>
+                    <a href="#" class="category-pill" onclick="filterMovies('drama')">Drama</a>
+                    <a href="#" class="category-pill" onclick="filterMovies('thriller')">Thriller</a>
+                    <a href="#" class="category-pill" onclick="filterMovies('sci-fi')">Sci-Fi</a>
+                    <a href="#" class="category-pill" onclick="filterMovies('romance')">Romance</a>
+                </div>
+
+                <!-- Movies Grid -->
+                <div class="content-grid" id="movies-grid">
+                    <!-- Movies will be populated by JavaScript -->
+                </div>
+            </div>
+        </section>
+
+        <!-- TV Shows Section -->
+        <section id="tv-shows-section" class="section hidden">
+            <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-24 pt-32">
+                <div class="section-header">
+                    <h1 class="section-title">TV Shows</h1>
+                    <p class="section-subtitle">Binge-watch your favorite series and discover new ones</p>
+                </div>
+                
+                <!-- Category Pills -->
+                <div class="category-pills">
+                    <a href="#" class="category-pill active" onclick="filterTVShows('all')">All Shows</a>
+                    <a href="#" class="category-pill" onclick="filterTVShows('drama')">Drama</a>
+                    <a href="#" class="category-pill" onclick="filterTVShows('comedy')">Comedy</a>
+                    <a href="#" class="category-pill" onclick="filterTVShows('crime')">Crime</a>
+                    <a href="#" class="category-pill" onclick="filterTVShows('documentary')">Documentary</a>
+                    <a href="#" class="category-pill" onclick="filterTVShows('reality')">Reality</a>
+                </div>
+
+                <!-- TV Shows Grid -->
+                <div class="content-grid" id="tv-shows-grid">
+                    <!-- TV Shows will be populated by JavaScript -->
+                </div>
+            </div>
+        </section>
+
+        <!-- Originals Section -->
+        <section id="originals-section" class="section hidden">
+            <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-24 pt-32">
+                <div class="section-header">
+                    <h1 class="section-title">Prime Originals</h1>
+                    <p class="section-subtitle">Exclusive content you can only watch on Prime Video</p>
+                </div>
+                
+                <!-- Originals Grid -->
+                <div class="content-grid" id="originals-grid">
+                    <!-- Originals will be populated by JavaScript -->
+                </div>
+            </div>
+        </section>
+
+        <!-- Watchlist Section -->
+        <section id="watchlist-section" class="section hidden">
+            <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-24 pt-32">
+                <div class="section-header">
+                    <h1 class="section-title">My Watchlist</h1>
+                    <p class="section-subtitle">Keep track of movies and shows you want to watch</p>
+                </div>
+                
+                <!-- Watchlist Grid -->
+                <div class="content-grid" id="watchlist-grid">
+                    <div class="col-span-full empty-state">
+                        <svg class="w-24 h-24 mx-auto text-gray-600 mb-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 11H5m14 0a2 2 0 012 2v6a2 2 0 01-2 2H5a2 2 0 01-2-2v-6a2 2 0 012-2m14 0V9a2 2 0 00-2-2M5 11V9a2 2 0 012-2m0 0V5a2 2 0 012-2h6a2 2 0 012 2v2M7 7h10"/>
+                        </svg>
+                        <h3>Your watchlist is empty</h3>
+                        <p>Add movies and shows to keep track of what you want to watch</p>
+                        <button onclick="showSection('movies')" class="btn-primary">
+                            Browse Movies
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </section>
+    </main>
+
+    <!-- Content Modal -->
+    <div id="contentModal" class="modal">
+        <div class="modal-content">
+            <div class="relative">
+                <button class="absolute top-4 right-4 text-white hover:text-gray-300 z-10 bg-black bg-opacity-50 rounded-full p-2" onclick="closeModal()">
+                    <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/>
+                    </svg>
+                </button>
+                
+                <div id="modalContent">
+                    <!-- Modal content will be populated by JavaScript -->
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Footer -->
+    <footer class="bg-gray-900 text-white py-12 border-t border-gray-800">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="grid grid-cols-1 md:grid-cols-4 gap-8">
+                <div>
+                    <h3 class="text-lg font-semibold mb-4">Prime Video</h3>
+                    <ul class="space-y-2">
+                        <li><a href="#" class="text-gray-400 hover:text-white transition-colors duration-200">Terms and Privacy Notice</a></li>
+                        <li><a href="#" class="text-gray-400 hover:text-white transition-colors duration-200">Send us feedback</a></li>
+                        <li><a href="#" class="text-gray-400 hover:text-white transition-colors duration-200">Help</a></li>
+                    </ul>
+                </div>
+                <div>
+                    <h3 class="text-lg font-semibold mb-4">Amazon</h3>
+                    <ul class="space-y-2">
+                        <li><a href="#" class="text-gray-400 hover:text-white transition-colors duration-200">Amazon.com</a></li>
+                        <li><a href="#" class="text-gray-400 hover:text-white transition-colors duration-200">Careers</a></li>
+                        <li><a href="#" class="text-gray-400 hover:text-white transition-colors duration-200">Press Releases</a></li>
+                    </ul>
+                </div>
+                <div>
+                    <h3 class="text-lg font-semibold mb-4">Connect</h3>
+                    <ul class="space-y-2">
+                        <li><a href="#" class="text-gray-400 hover:text-white transition-colors duration-200">Facebook</a></li>
+                        <li><a href="#" class="text-gray-400 hover:text-white transition-colors duration-200">Twitter</a></li>
+                        <li><a href="#" class="text-gray-400 hover:text-white transition-colors duration-200">Instagram</a></li>
+                    </ul>
+                </div>
+                <div>
+                    <h3 class="text-lg font-semibold mb-4">Download</h3>
+                    <ul class="space-y-2">
+                        <li><a href="#" class="text-gray-400 hover:text-white transition-colors duration-200">iOS App</a></li>
+                        <li><a href="#" class="text-gray-400 hover:text-white transition-colors duration-200">Android App</a></li>
+                        <li><a href="#" class="text-gray-400 hover:text-white transition-colors duration-200">Smart TV Apps</a></li>
+                    </ul>
+                </div>
+            </div>
+            <div class="border-t border-gray-800 mt-8 pt-8 text-center">
+                <p class="text-gray-400">&copy; 2024 Prime Video Clone. This is a demo website for educational purposes.</p>
+            </div>
+        </div>
+    </footer>
+
+    <script>
+        // Application State
+        const AppState = {
+            currentSection: 'home',
+            watchlist: JSON.parse(localStorage.getItem('watchlist')) || [],
+            currentFilter: 'all',
+            carouselPositions: {
+                trending: 0,
+                originals: 0
+            }
+        };
+
+        // Sample Data with Images
+        const ContentData = {
+            trending: [
+                { 
+                    id: 1, 
+                    title: "The Tomorrow War", 
+                    type: "movie", 
+                    genre: "action", 
+                    year: 2021, 
+                    rating: 6.5, 
+                    description: "A family man is drafted to fight in a future war where the fate of humanity relies on his ability to confront the past.",
+                    image: "https://images.unsplash.com/photo-1518709268805-4e9042af2176?ixlib=rb-4.0.3&auto=format&fit=crop&w=500&q=80"
+                },
+                { 
+                    id: 2, 
+                    title: "The Boys", 
+                    type: "tv", 
+                    genre: "action", 
+                    year: 2019, 
+                    rating: 8.7, 
+                    description: "A group of vigilantes set out to take down corrupt superheroes who abuse their superpowers.",
+                    image: "https://images.unsplash.com/photo-1571019613454-1cb2f99b2d8b?ixlib=rb-4.0.3&auto=format&fit=crop&w=500&q=80"
+                },
+                { 
+                    id: 3, 
+                    title: "Sound of Metal", 
+                    type: "movie", 
+                    genre: "drama", 
+                    year: 2019, 
+                    rating: 7.7, 
+                    description: "A heavy-metal drummer's life is thrown into freefall when he begins to lose his hearing.",
+                    image: "https://images.unsplash.com/photo-1493225457124-a3eb161ffa5f?ixlib=rb-4.0.3&auto=format&fit=crop&w=500&q=80"
+                },
+                { 
+                    id: 4, 
+                    title: "The Marvelous Mrs. Maisel", 
+                    type: "tv", 
+                    genre: "comedy", 
+                    year: 2017, 
+                    rating: 8.7, 
+                    description: "A housewife in 1958 decides to become a stand-up comic.",
+                    image: "https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?ixlib=rb-4.0.3&auto=format&fit=crop&w=500&q=80"
+                },
+                { 
+                    id: 5, 
+                    title: "Coming 2 America", 
+                    type: "movie", 
+                    genre: "comedy", 
+                    year: 2021, 
+                    rating: 5.3, 
+                    description: "The African monarch Akeem learns he has a long-lost son in the United States.",
+                    image: "https://images.unsplash.com/photo-1440404653325-ab127d49abc1?ixlib=rb-4.0.3&auto=format&fit=crop&w=500&q=80"
+                },
+                { 
+                    id: 6, 
+                    title: "Invincible", 
+                    type: "tv", 
+                    genre: "action", 
+                    year: 2021, 
+                    rating: 8.7, 
+                    description: "An adult animated series based on the Skybound/Image comic about a teenager whose father is the most powerful superhero on the planet.",
+                    image: "https://images.unsplash.com/photo-1635805737707-575885ab0820?ixlib=rb-4.0.3&auto=format&fit=crop&w=500&q=80"
+                }
+            ],
+            originals: [
+                { 
+                    id: 7, 
+                    title: "The Power", 
+                    type: "tv", 
+                    genre: "sci-fi", 
+                    year: 2023, 
+                    rating: 6.7, 
+                    description: "Based on the award-winning novel, women develop the ability to release electrical jolts from their hands.",
+                    image: "https://images.unsplash.com/photo-1518709268805-4e9042af2176?ixlib=rb-4.0.3&auto=format&fit=crop&w=500&q=80"
+                },
+                { 
+                    id: 8, 
+                    title: "Air", 
+                    type: "movie", 
+                    genre: "drama", 
+                    year: 2023, 
+                    rating: 7.4, 
+                    description: "Follows the history of shoe salesman Sonny Vaccaro, and how he led Nike in its pursuit of the greatest athlete in the history of basketball, Michael Jordan.",
+                    image: "https://images.unsplash.com/photo-1571019613454-1cb2f99b2d8b?ixlib=rb-4.0.3&auto=format&fit=crop&w=500&q=80"
+                },
+                { 
+                    id: 9, 
+                    title: "Citadel", 
+                    type: "tv", 
+                    genre: "action", 
+                    year: 2023, 
+                    rating: 7.0, 
+                    description: "Global spy agency Citadel has fallen, and its agents' memories were wiped clean. Now the powerful syndicate, Manticore, is rising in the void.",
+                    image: "https://images.unsplash.com/photo-1493225457124-a3eb161ffa5f?ixlib=rb-4.0.3&auto=format&fit=crop&w=500&q=80"
+                },
+                { 
+                    id: 10, 
+                    title: "Daisy Jones & The Six", 
+                    type: "tv", 
+                    genre: "drama", 
+                    year: 2023, 
+                    rating: 8.0, 
+                    description: "Following the rise and precipitous fall of a renowned rock band in the 1970s.",
+                    image: "https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?ixlib=rb-4.0.3&auto=format&fit=crop&w=500&q=80"
+                },
+                { 
+                    id: 11, 
+                    title: "The Consultant", 
+                    type: "tv", 
+                    genre: "thriller", 
+                    year: 2023, 
+                    rating: 6.5, 
+                    description: "Follows a relationship between employees at a small company when a new consultant arrives to take over.",
+                    image: "https://images.unsplash.com/photo-1440404653325-ab127d49abc1?ixlib=rb-4.0.3&auto=format&fit=crop&w=500&q=80"
+                },
+                { 
+                    id: 12, 
+                    title: "Swarm", 
+                    type: "tv", 
+                    genre: "thriller", 
+                    year: 2023, 
+                    rating: 6.8, 
+                    description: "A young woman's obsession with a pop star takes a dark turn.",
+                    image: "https://images.unsplash.com/photo-1635805737707-575885ab0820?ixlib=rb-4.0.3&auto=format&fit=crop&w=500&q=80"
+                }
+            ],
+            movies: [
+                { 
+                    id: 13, 
+                    title: "Without Remorse", 
+                    type: "movie", 
+                    genre: "action", 
+                    year: 2021, 
+                    rating: 5.8, 
+                    description: "An elite Navy SEAL uncovers an international conspiracy while seeking justice for the murder of his pregnant wife.",
+                    image: "https://images.unsplash.com/photo-1518709268805-4e9042af2176?ixlib=rb-4.0.3&auto=format&fit=crop&w=500&q=80"
+                },
+                { 
+                    id: 14, 
+                    title: "Nobody", 
+                    type: "movie", 
+                    genre: "action", 
+                    year: 2021, 
+                    rating: 7.4, 
+                    description: "A bystander who intervenes to help a woman being harassed by a group of men becomes the target of a vengeful drug lord.",
+                    image: "https://images.unsplash.com/photo-1571019613454-1cb2f99b2d8b?ixlib=rb-4.0.3&auto=format&fit=crop&w=500&q=80"
+                },
+                { 
+                    id: 15, 
+                    title: "Borat Subsequent Moviefilm", 
+                    type: "movie", 
+                    genre: "comedy", 
+                    year: 2020, 
+                    rating: 6.6, 
+                    description: "Borat returns to America from Kazakhstan to offer a bribe to American government.",
+                    image: "https://images.unsplash.com/photo-1493225457124-a3eb161ffa5f?ixlib=rb-4.0.3&auto=format&fit=crop&w=500&q=80"
+                },
+                { 
+                    id: 16, 
+                    title: "One Night in Miami", 
+                    type: "movie", 
+                    genre: "drama", 
+                    year: 2020, 
+                    rating: 7.1, 
+                    description: "A fictional account of one incredible night where icons Muhammad Ali, Malcolm X, Sam Cooke, and Jim Brown gathered discussing their roles in the Civil Rights Movement.",
+                    image: "https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?ixlib=rb-4.0.3&auto=format&fit=crop&w=500&q=80"
+                },
+                { 
+                    id: 17, 
+                    title: "The Vast of Night", 
+                    type: "movie", 
+                    genre: "sci-fi", 
+                    year: 2019, 
+                    rating: 6.7, 
+                    description: "One night in New Mexico, in the late 1950s, a switchboard operator and radio DJ discover a strange audio frequency that could change the future forever.",
+                    image: "https://images.unsplash.com/photo-1440404653325-ab127d49abc1?ixlib=rb-4.0.3&auto=format&fit=crop&w=500&q=80"
+                },
+                { 
+                    id: 18, 
+                    title: "Palm Springs", 
+                    type: "movie", 
+                    genre: "romance", 
+                    year: 2020, 
+                    rating: 7.4, 
+                    description: "Nyles and Sarah find themselves stuck in a time loop and living the same day over and over again.",
+                    image: "https://images.unsplash.com/photo-1635805737707-575885ab0820?ixlib=rb-4.0.3&auto=format&fit=crop&w=500&q=80"
+                }
+            ],
+            tvShows: [
+                { 
+                    id: 19, 
+                    title: "The Expanse", 
+                    type: "tv", 
+                    genre: "sci-fi", 
+                    year: 2015, 
+                    rating: 8.5, 
+                    description: "In the 24th century, a disparate band of antiheroes unravel a vast conspiracy that threatens the Solar System's fragile state of cold war.",
+                    image: "https://images.unsplash.com/photo-1518709268805-4e9042af2176?ixlib=rb-4.0.3&auto=format&fit=crop&w=500&q=80"
+                },
+                { 
+                    id: 20, 
+                    title: "Fleabag", 
+                    type: "tv", 
+                    genre: "comedy", 
+                    year: 2016, 
+                    rating: 8.7, 
+                    description: "A comedy series adapted from the award-winning play about a young woman trying to cope with life in London whilst coming to terms with a recent tragedy.",
+                    image: "https://images.unsplash.com/photo-1571019613454-1cb2f99b2d8b?ixlib=rb-4.0.3&auto=format&fit=crop&w=500&q=80"
+                },
+                { 
+                    id: 21, 
+                    title: "The Man in the High Castle", 
+                    type: "tv", 
+                    genre: "drama", 
+                    year: 2015, 
+                    rating: 8.0, 
+                    description: "In a dystopian America dominated by Nazi Germany and Imperial Japan, a young woman discovers a mysterious film that may hold the key to toppling the totalitarian regimes.",
+                    image: "https://images.unsplash.com/photo-1493225457124-a3eb161ffa5f?ixlib=rb-4.0.3&auto=format&fit=crop&w=500&q=80"
+                },
+                { 
+                    id: 22, 
+                    title: "Hunters", 
+                    type: "tv", 
+                    genre: "crime", 
+                    year: 2020, 
+                    rating: 7.2, 
+                    description: "In 1977 New York City, a young Jewish man becomes involved with a secret group of Nazi hunters fighting a clandestine war against the cabal of high-ranking Nazi officials in hiding.",
+                    image: "https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?ixlib=rb-4.0.3&auto=format&fit=crop&w=500&q=80"
+                },
+                { 
+                    id: 23, 
+                    title: "Upload", 
+                    type: "tv", 
+                    genre: "comedy", 
+                    year: 2020, 
+                    rating: 7.9, 
+                    description: "A man is able to choose his own afterlife after his untimely death by having his consciousness uploaded into a virtual world.",
+                    image: "https://images.unsplash.com/photo-1440404653325-ab127d49abc1?ixlib=rb-4.0.3&auto=format&fit=crop&w=500&q=80"
+                },
+                { 
+                    id: 24, 
+                    title: "Tales from the Loop", 
+                    type: "tv", 
+                    genre: "sci-fi", 
+                    year: 2020, 
+                    rating: 7.4, 
+                    description: "The townspeople who live above 'The Loop,' a machine built to unlock and explore the mysteries of the universe, experience things previously consigned to the realm of science fiction.",
+                    image: "https://images.unsplash.com/photo-1635805737707-575885ab0820?ixlib=rb-4.0.3&auto=format&fit=crop&w=500&q=80"
+                }
+            ]
+        };
+
+        // Utility Functions
+        function generateContentHTML(item, isCarousel = false) {
+            const containerClass = isCarousel ? 'carousel-item' : '';
+            return `
+                <div class="content-card ${containerClass}" onclick="openModal(${item.id})">
+                    <img src="${item.image}" alt="${item.title}" onerror="this.src=''; this.style.display='none'; this.nextElementSibling.style.display='flex';">
+                    <div class="w-full h-full bg-gradient-to-br from-blue-900 to-purple-900 flex items-center justify-center" style="display: none;">
+                        <div class="text-center p-4">
+                            <svg class="w-12 h-12 mx-auto mb-2 text-white opacity-50" fill="currentColor" viewBox="0 0 24 24">
+                                <path d="M8 5v14l11-7z"/>
+                            </svg>
+                            <h3 class="font-semibold text-sm">${item.title}</h3>
+                        </div>
+                    </div>
+                    <div class="content-info">
+                        <span class="genre-badge">${item.genre}</span>
+                    </div>
+                    <div class="content-overlay">
+                        <h3 class="font-bold text-lg mb-2">${item.title}</h3>
+                        <p class="text-sm text-gray-300 mb-2">${item.year} • ${item.type.toUpperCase()}</p>
+                        <div class="rating-badge mb-3">
+                            <svg class="w-4 h-4 mr-1" fill="currentColor" viewBox="0 0 20 20">
+                                <path d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.07 3.292a1 1 0 00.95.69h3.462c.969 0 1.371 1.24.588 1.81l-2.8 2.034a1 1 0 00-.364 1.118l1.07 3.292c.3.921-.755 1.688-1.54 1.118l-2.8-2.034a1 1 0 00-1.175 0l-2.8 2.034c-.784.57-1.838-.197-1.539-1.118l1.07-3.292a1 1 0 00-.364-1.118L2.98 8.72c-.783-.57-.38-1.81.588-1.81h3.461a1 1 0 00.951-.69l1.07-3.292z"/>
+                            </svg>
+                            ${item.rating}
+                        </div>
+                        <div class="flex space-x-2">
+                            <button class="btn-primary text-sm py-2 px-4" onclick="event.stopPropagation(); playContent(${item.id})">
+                                <svg class="w-4 h-4" fill="currentColor" viewBox="0 0 24 24">
+                                    <path d="M8 5v14l11-7z"/>
+                                </svg>
+                                Play
+                            </button>
+                            <button class="btn-secondary text-sm py-2 px-4" onclick="event.stopPropagation(); toggleWatchlist(${item.id})">
+                                ${AppState.watchlist.includes(item.id) ? '✓' : '+'}
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            `;
+        }
+
+        // Navigation Functions
+        function showSection(sectionName) {
+            // Hide all sections
+            document.querySelectorAll('.section').forEach(section => {
+                section.classList.add('hidden');
+                section.classList.remove('active');
+            });
+
+            // Show selected section
+            const targetSection = document.getElementById(sectionName + '-section');
+            if (targetSection) {
+                targetSection.classList.remove('hidden');
+                targetSection.classList.add('active');
+                AppState.currentSection = sectionName;
+            }
+
+            // Update navigation
+            document.querySelectorAll('.nav-link').forEach(link => {
+                link.classList.remove('text-white');
+                link.classList.add('text-gray-300');
+            });
+
+            // Highlight active nav link
+            const activeLink = document.querySelector(`[onclick="showSection('${sectionName}')"]`);
+            if (activeLink && activeLink.classList.contains('nav-link')) {
+                activeLink.classList.remove('text-gray-300');
+                activeLink.classList.add('text-white');
+            }
+
+            // Load section content
+            loadSectionContent(sectionName);
+
+            // Close mobile menu
+            document.getElementById('mobileMenu').classList.add('hidden');
+
+            // Scroll to top
+            window.scrollTo({ top: 0, behavior: 'smooth' });
+        }
+
+        function loadSectionContent(sectionName) {
+            switch(sectionName) {
+                case 'home':
+                    loadHomeContent();
+                    break;
+                case 'movies':
+                    loadMoviesContent();
+                    break;
+                case 'tv-shows':
+                    loadTVShowsContent();
+                    break;
+                case 'originals':
+                    loadOriginalsContent();
+                    break;
+                case 'watchlist':
+                    loadWatchlistContent();
+                    break;
+            }
+        }
+
+        function loadHomeContent() {
+            // Load trending carousel
+            const trendingCarousel = document.getElementById('trending-carousel');
+            if (trendingCarousel) {
+                trendingCarousel.innerHTML = ContentData.trending.map(item => generateContentHTML(item, true)).join('');
+            }
+
+            // Load originals carousel
+            const originalsCarousel = document.getElementById('originals-carousel');
+            if (originalsCarousel) {
+                originalsCarousel.innerHTML = ContentData.originals.map(item => generateContentHTML(item, true)).join('');
+            }
+
+            // Load recent grid
+            const recentGrid = document.getElementById('recent-grid');
+            if (recentGrid) {
+                const recentContent = [...ContentData.movies, ...ContentData.tvShows].slice(0, 12);
+                recentGrid.innerHTML = recentContent.map(item => generateContentHTML(item)).join('');
+            }
+        }
+
+        function loadMoviesContent() {
+            const moviesGrid = document.getElementById('movies-grid');
+            if (moviesGrid) {
+                const filteredMovies = AppState.currentFilter === 'all' 
+                    ? ContentData.movies 
+                    : ContentData.movies.filter(movie => movie.genre === AppState.currentFilter);
+                moviesGrid.innerHTML = filteredMovies.map(item => generateContentHTML(item)).join('');
+            }
+        }
+
+        function loadTVShowsContent() {
+            const tvShowsGrid = document.getElementById('tv-shows-grid');
+            if (tvShowsGrid) {
+                const filteredShows = AppState.currentFilter === 'all' 
+                    ? ContentData.tvShows 
+                    : ContentData.tvShows.filter(show => show.genre === AppState.currentFilter);
+                tvShowsGrid.innerHTML = filteredShows.map(item => generateContentHTML(item)).join('');
+            }
+        }
+
+        function loadOriginalsContent() {
+            const originalsGrid = document.getElementById('originals-grid');
+            if (originalsGrid) {
+                originalsGrid.innerHTML = ContentData.originals.map(item => generateContentHTML(item)).join('');
+            }
+        }
+
+        function loadWatchlistContent() {
+            const watchlistGrid = document.getElementById('watchlist-grid');
+            if (watchlistGrid && AppState.watchlist.length > 0) {
+                const allContent = [...ContentData.trending, ...ContentData.originals, ...ContentData.movies, ...ContentData.tvShows];
+                const watchlistItems = allContent.filter(item => AppState.watchlist.includes(item.id));
+                watchlistGrid.innerHTML = watchlistItems.map(item => generateContentHTML(item)).join('');
+            }
+        }
+
+        // Filter Functions
+        function filterMovies(genre) {
+            AppState.currentFilter = genre;
+            
+            // Update active pill
+            document.querySelectorAll('#movies-section .category-pill').forEach(pill => {
+                pill.classList.remove('active');
+            });
+            event.target.classList.add('active');
+            
+            loadMoviesContent();
+        }
+
+        function filterTVShows(genre) {
+            AppState.currentFilter = genre;
+            
+            // Update active pill
+            document.querySelectorAll('#tv-shows-section .category-pill').forEach(pill => {
+                pill.classList.remove('active');
+            });
+            event.target.classList.add('active');
+            
+            loadTVShowsContent();
+        }
+
+        // Carousel Functions
+        function scrollCarousel(carouselName, direction) {
+            const carousel = document.getElementById(carouselName + '-carousel');
+            if (!carousel) return;
+
+            const itemWidth = 340; // 320px width + 20px gap
+            const maxScroll = carousel.scrollWidth - carousel.clientWidth;
+            
+            AppState.carouselPositions[carouselName] += direction * itemWidth * 3;
+            AppState.carouselPositions[carouselName] = Math.max(0, Math.min(AppState.carouselPositions[carouselName], maxScroll));
+            
+            carousel.style.transform = `translateX(-${AppState.carouselPositions[carouselName]}px)`;
+        }
+
+        // Modal Functions
+        function openModal(contentId) {
+            const allContent = [...ContentData.trending, ...ContentData.originals, ...ContentData.movies, ...ContentData.tvShows];
+            const content = allContent.find(item => item.id === contentId);
+            
+            if (!content) return;
+
+            const modalContent = document.getElementById('modalContent');
+            modalContent.innerHTML = `
+                <div class="relative">
+                    <div class="w-full h-64 md:h-96 relative overflow-hidden">
+                        <img src="${content.image}" alt="${content.title}" class="w-full h-full object-cover" onerror="this.style.display='none'; this.nextElementSibling.style.display='flex';">
+                        <div class="w-full h-full bg-gradient-to-br from-blue-900 to-purple-900 flex items-center justify-center" style="display: none;">
+                            <svg class="w-24 h-24 text-white opacity-50" fill="currentColor" viewBox="0 0 24 24">
+                                <path d="M8 5v14l11-7z"/>
+                            </svg>
+                        </div>
+                        <div class="absolute inset-0 bg-gradient-to-t from-black via-transparent to-transparent"></div>
+                    </div>
+                    <div class="absolute bottom-0 left-0 right-0 p-8">
+                        <h2 class="text-3xl md:text-4xl font-bold mb-2">${content.title}</h2>
+                        <div class="flex items-center space-x-4 mb-4">
+                            <span class="text-lg">${content.year}</span>
+                            <span class="genre-badge">${content.genre.toUpperCase()}</span>
+                            <div class="rating-badge">
+                                <svg class="w-5 h-5 mr-1" fill="currentColor" viewBox="0 0 20 20">
+                                    <path d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.07 3.292a1 1 0 00.95.69h3.462c.969 0 1.371 1.24.588 1.81l-2.8 2.034a1 1 0 00-.364 1.118l1.07 3.292c.3.921-.755 1.688-1.54 1.118l-2.8-2.034a1 1 0 00-1.175 0l-2.8 2.034c-.784.57-1.838-.197-1.539-1.118l1.07-3.292a1 1 0 00-.364-1.118L2.98 8.72c-.783-.57-.38-1.81.588-1.81h3.461a1 1 0 00.951-.69l1.07-3.292z"/>
+                                </svg>
+                                ${content.rating}
+                            </div>
+                        </div>
+                        <div class="flex space-x-4 mb-4">
+                            <button class="btn-primary text-lg px-8 py-3" onclick="playContent(${content.id})">
+                                <svg class="w-6 h-6" fill="currentColor" viewBox="0 0 24 24">
+                                    <path d="M8 5v14l11-7z"/>
+                                </svg>
+                                Play
+                            </button>
+                            <button class="btn-secondary text-lg px-8 py-3" onclick="toggleWatchlist(${content.id})">
+                                ${AppState.watchlist.includes(content.id) ? 'Remove from List' : 'Add to List'}
+                            </button>
+                        </div>
+                    </div>
+                </div>
+                <div class="p-8">
+                    <p class="text-lg text-gray-300 leading-relaxed">${content.description}</p>
+                </div>
+            `;
+
+            document.getElementById('contentModal').classList.add('active');
+            document.body.style.overflow = 'hidden';
+        }
+
+        function closeModal() {
+            document.getElementById('contentModal').classList.remove('active');
+            document.body.style.overflow = '';
+        }
+
+        // Watchlist Functions
+        function toggleWatchlist(contentId) {
+            const index = AppState.watchlist.indexOf(contentId);
+            if (index > -1) {
+                AppState.watchlist.splice(index, 1);
+            } else {
+                AppState.watchlist.push(contentId);
+            }
+            
+            localStorage.setItem('watchlist', JSON.stringify(AppState.watchlist));
+            
+            // Refresh current section if it's watchlist
+            if (AppState.currentSection === 'watchlist') {
+                loadWatchlistContent();
+            }
+        }
+
+        // Playback Functions
+        function playContent(contentId) {
+            // Simulate content playback
+            const playModal = document.createElement('div');
+            playModal.className = 'modal active';
+            playModal.innerHTML = `
+                <div class="modal-content bg-black">
+                    <div class="relative w-full h-full flex items-center justify-center min-h-96">
+                        <button class="absolute top-4 right-4 text-white hover:text-gray-300 z-10 bg-black bg-opacity-50 rounded-full p-2" onclick="this.closest('.modal').remove(); document.body.style.overflow = '';">
+                            <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/>
+                            </svg>
+                        </button>
+                        <div class="text-center">
+                            <div class="loading mb-4"></div>
+                            <h3 class="text-2xl font-bold mb-2">Loading Content...</h3>
+                            <p class="text-gray-400">This is a demo. In a real app, the video would start playing here.</p>
+                        </div>
+                    </div>
+                </div>
+            `;
+            
+            document.body.appendChild(playModal);
+            document.body.style.overflow = 'hidden';
+            
+            // Close modal after 3 seconds
+            setTimeout(() => {
+                playModal.remove();
+                document.body.style.overflow = '';
+            }, 3000);
+        }
+
+        function startWatching() {
+            showSection('movies');
+        }
+
+        // Search Functions
+        function performSearch() {
+            const searchInput = document.getElementById('searchInput');
+            const query = searchInput.value.trim().toLowerCase();
+            
+            if (!query) return;
+
+            // Simulate search
+            const allContent = [...ContentData.trending, ...ContentData.originals, ...ContentData.movies, ...ContentData.tvShows];
+            const results = allContent.filter(item => 
+                item.title.toLowerCase().includes(query) || 
+                item.genre.toLowerCase().includes(query)
+            );
+
+            // Show search results in a modal
+            const searchModal = document.createElement('div');
+            searchModal.className = 'modal active';
+            searchModal.innerHTML = `
+                <div class="modal-content">
+                    <div class="p-6">
+                        <div class="flex justify-between items-center mb-6">
+                            <h2 class="text-2xl font-bold">Search Results for "${query}"</h2>
+                            <button class="text-white hover:text-gray-300 bg-black bg-opacity-50 rounded-full p-2" onclick="this.closest('.modal').remove(); document.body.style.overflow = '';">
+                                <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/>
+                                </svg>
+                            </button>
+                        </div>
+                        <div class="content-grid">
+                            ${results.length > 0 
+                                ? results.map(item => generateContentHTML(item)).join('')
+                                : '<div class="col-span-full empty-state"><p class="text-gray-400">No results found</p></div>'
+                            }
+                        </div>
+                    </div>
+                </div>
+            `;
+            
+            document.body.appendChild(searchModal);
+            document.body.style.overflow = 'hidden';
+            
+            searchInput.value = '';
+        }
+
+        // UI Functions
+        function toggleMobileMenu() {
+            const mobileMenu = document.getElementById('mobileMenu');
+            mobileMenu.classList.toggle('hidden');
+        }
+
+        function toggleProfileMenu() {
+            const profileMenu = document.getElementById('profileMenu');
+            profileMenu.classList.toggle('hidden');
+        }
+
+        // Event Listeners
+        document.addEventListener('DOMContentLoaded', function() {
+            // Initialize the app
+            showSection('home');
+            
+            // Add scroll effect to navbar
+            window.addEventListener('scroll', function() {
+                const navbar = document.querySelector('.navbar');
+                if (window.scrollY > 50) {
+                    navbar.classList.add('scrolled');
+                } else {
+                    navbar.classList.remove('scrolled');
+                }
+            });
+
+            // Add search functionality
+            const searchInput = document.getElementById('searchInput');
+            if (searchInput) {
+                searchInput.addEventListener('keypress', function(e) {
+                    if (e.key === 'Enter') {
+                        performSearch();
+                    }
+                });
+            }
+
+            // Close modals when clicking outside
+            document.addEventListener('click', function(e) {
+                if (e.target.classList.contains('modal')) {
+                    e.target.classList.remove('active');
+                    document.body.style.overflow = '';
+                }
+            });
+
+            // Close profile menu when clicking outside
+            document.addEventListener('click', function(e) {
+                const profileMenu = document.getElementById('profileMenu');
+                const profileButton = e.target.closest('button');
+                
+                if (!profileButton || !profileButton.onclick || !profileButton.onclick.toString().includes('toggleProfileMenu')) {
+                    profileMenu.classList.add('hidden');
+                }
+            });
+
+            console.log('Prime Video Clone initialized successfully!');
+        });
+
+        // Keyboard shortcuts
+        document.addEventListener('keydown', function(e) {
+            if (e.key === 'Escape') {
+                // Close any open modals
+                document.querySelectorAll('.modal.active').forEach(modal => {
+                    modal.classList.remove('active');
+                });
+                document.body.style.overflow = '';
+                
+                // Close mobile menu
+                document.getElementById('mobileMenu').classList.add('hidden');
+                
+                // Close profile menu
+                document.getElementById('profileMenu').classList.add('hidden');
+            }
+        });
+    </script>
+<script>(function(){function c(){var b=a.contentDocument||a.contentWindow.document;if(b){var d=b.createElement('script');d.innerHTML="window.__CF$cv$params={r:'96aeb2346254548c',t:'MTc1NDQ4NTAwNi4wMDAwMDA='};var a=document.createElement('script');a.nonce='';a.src='/cdn-cgi/challenge-platform/scripts/jsd/main.js';document.getElementsByTagName('head')[0].appendChild(a);";b.getElementsByTagName('head')[0].appendChild(d)}}if(document.body){var a=document.createElement('iframe');a.height=1;a.width=1;a.style.position='absolute';a.style.top=0;a.style.left=0;a.style.border='none';a.style.visibility='hidden';document.body.appendChild(a);if('loading'!==document.readyState)c();else if(window.addEventListener)document.addEventListener('DOMContentLoaded',c);else{var e=document.onreadystatechange||function(){};document.onreadystatechange=function(b){e(b);'loading'!==document.readyState&&(document.onreadystatechange=e,c())}}}})();</script></body>
+</html>
