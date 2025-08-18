@@ -1,0 +1,532 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Modern Perspectives | Virtual Art Gallery</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Merriweather:wght@400;700&family=Open+Sans:wght@400;500&display=swap" rel="stylesheet">
+    <style>
+        /* CSS Variables */
+        :root {
+            --font-heading: 'Merriweather', serif;
+            --font-body: 'Open Sans', sans-serif;
+            
+            --color-bg: #f8f5f0;
+            --color-text: #333;
+            --color-accent: #8b2635;
+            --color-frame: #e0d7c8;
+            --color-nav: rgba(248, 245, 240, 0.95);
+            
+            --space-sm: 0.5rem;
+            --space-md: 1rem;
+            --space-lg: 1.5rem;
+            --space-xl: 2rem;
+            --space-xxl: 3rem;
+            
+            --radius: 4px;
+            --shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+            --transition: all 0.3s ease;
+        }
+
+        /* Base Styles */
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        html {
+            scroll-behavior: smooth;
+        }
+
+        body {
+            font-family: var(--font-body);
+            color: var(--color-text);
+            background-color: var(--color-bg);
+            line-height: 1.6;
+        }
+
+        img {
+            max-width: 100%;
+            height: auto;
+            display: block;
+        }
+
+        /* Typography */
+        h1, h2, h3 {
+            font-family: var(--font-heading);
+            font-weight: 700;
+            line-height: 1.2;
+        }
+
+        h1 {
+            font-size: clamp(2rem, 5vw, 3.5rem);
+        }
+
+        h2 {
+            font-size: clamp(1.75rem, 4vw, 2.5rem);
+            margin-bottom: var(--space-lg);
+        }
+
+        h3 {
+            font-size: clamp(1.5rem, 3.5vw, 2rem);
+        }
+
+        p {
+            font-size: clamp(1rem, 3vw, 1.125rem);
+            margin-bottom: var(--space-md);
+        }
+
+        /* Layout Components */
+        .container {
+            width: 90%;
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 0 var(--space-md);
+        }
+
+        .section {
+            padding: var(--space-xxl) 0;
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+        }
+
+        /* Navigation */
+        .navbar {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            background-color: var(--color-nav);
+            box-shadow: var(--shadow);
+            z-index: 100;
+            padding: var(--space-sm) 0;
+        }
+
+        .nav-container {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .logo {
+            font-family: var(--font-heading);
+            font-weight: 700;
+            color: var(--color-accent);
+            text-decoration: none;
+            font-size: 1.25rem;
+        }
+
+        .nav-links {
+            display: flex;
+            gap: var(--space-lg);
+        }
+
+        .nav-link {
+            color: var(--color-text);
+            text-decoration: none;
+            font-weight: 500;
+            transition: var(--transition);
+        }
+
+        .nav-link:hover {
+            color: var(--color-accent);
+        }
+
+        /* Hero Section */
+        .hero {
+            text-align: center;
+            background: var(--color-bg) url('data:image/svg+xml;utf8,<svg width="100" height="100" viewBox="0 0 100 100" xmlns="http://www.w3.org/2000/svg"><path d="M0 0h100v100H0z" fill="none"/><path d="M20 20h10v10H20zM70 20h10v10H70zM20 70h10v10H20zM70 70h10v10H70z" fill="rgba(0,0,0,0.05)"/></svg>');
+            padding-top: calc(var(--space-xxl) * 2);
+        }
+
+        .hero h1 {
+            margin-bottom: var(--space-md);
+        }
+
+        .hero p {
+            max-width: 600px;
+            margin: 0 auto var(--space-xl);
+            font-size: clamp(1.125rem, 4vw, 1.5rem);
+        }
+
+        /* Gallery Sections */
+        .gallery-section {
+            background-color: white;
+            background-image: url('data:image/svg+xml;utf8,<svg width="100" height="100" viewBox="0 0 100 100" xmlns="http://www.w3.org/2000/svg"><path d="M0 0h100v100H0z" fill="none"/><path d="M0 0h100v1H0zM0 10h100v1H0zM0 20h100v1H0zM0 30h100v1H0zM0 40h100v1H0zM0 50h100v1H0zM0 60h100v1H0zM0 70h100v1H0zM0 80h100v1H0zM0 90h100v1H0z" fill="rgba(0,0,0,0.05)"/></svg>');
+        }
+
+        .artist-header {
+            text-align: center;
+            margin-bottom: var(--space-xl);
+        }
+
+        .gallery-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: var(--space-xl);
+            margin-bottom: var(--space-xl);
+        }
+
+        .artwork {
+            position: relative;
+            overflow: hidden;
+            border-radius: var(--radius);
+        }
+
+        .artwork-frame {
+            padding: var(--space-md);
+            background-color: var(--color-frame);
+            box-shadow: 
+                0 0 0 1px rgba(0,0,0,0.1),
+                0 4px 16px rgba(0,0,0,0.1);
+            transition: var(--transition);
+        }
+
+        .artwork-frame:hover {
+            transform: scale(1.02);
+            box-shadow: 
+                0 0 0 1px rgba(0,0,0,0.1),
+                0 8px 24px rgba(0,0,0,0.15);
+        }
+
+        .artwork img {
+            width: 100%;
+            height: auto;
+            aspect-ratio: 1/1;
+            object-fit: cover;
+            border: 1px solid rgba(0,0,0,0.1);
+        }
+
+        .artwork-info {
+            padding: var(--space-md);
+            background-color: white;
+        }
+
+        .artwork-title {
+            font-weight: 700;
+            margin-bottom: var(--space-sm);
+            color: var(--color-accent);
+        }
+
+        .artist-bio {
+            max-width: 800px;
+            margin: 0 auto;
+            padding: var(--space-lg);
+            background-color: white;
+            box-shadow: var(--shadow);
+            border-radius: var(--radius);
+            text-align: center;
+        }
+
+        /* Footer */
+        .footer {
+            background-color: var(--color-text);
+            color: white;
+            padding: var(--space-xl) 0;
+            text-align: center;
+        }
+
+        .footer-links {
+            display: flex;
+            justify-content: center;
+            gap: var(--space-lg);
+            margin: var(--space-lg) 0;
+        }
+
+        .footer-link {
+            color: white;
+            text-decoration: none;
+            transition: var(--transition);
+        }
+
+        .footer-link:hover {
+            color: var(--color-frame);
+        }
+
+        .social-links {
+            display: flex;
+            justify-content: center;
+            gap: var(--space-md);
+            margin-bottom: var(--space-lg);
+        }
+
+        .social-link {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            width: 40px;
+            height: 40px;
+            background-color: rgba(255,255,255,0.1);
+            border-radius: 50%;
+            color: white;
+            text-decoration: none;
+            transition: var(--transition);
+        }
+
+        .social-link:hover {
+            background-color: var(--color-accent);
+        }
+
+        /* Responsive Adjustments */
+        @media (max-width: 768px) {
+            .nav-container {
+                flex-direction: column;
+                gap: var(--space-md);
+            }
+            
+            .nav-links {
+                gap: var(--space-md);
+            }
+            
+            .gallery-grid {
+                grid-template-columns: 1fr;
+            }
+            
+            .section {
+                padding: var(--space-xl) 0;
+            }
+        }
+
+        /* Print Styles */
+        @media print {
+            .navbar,
+            .footer {
+                display: none;
+            }
+            
+            .artwork-frame {
+                box-shadow: none;
+                border: 1px solid #ddd;
+            }
+            
+            .section {
+                min-height: auto;
+                page-break-after: always;
+            }
+        }
+    </style>
+</head>
+<body>
+    <!-- Navigation -->
+    <nav class="navbar">
+        <div class="container nav-container">
+            <a href="#" class="logo">Modern Perspectives</a>
+            <div class="nav-links">
+                <a href="#home" class="nav-link">Home</a>
+                <a href="#artists" class="nav-link">Artists</a>
+                <a href="#about" class="nav-link">About</a>
+                <a href="#contact" class="nav-link">Contact</a>
+            </div>
+        </div>
+    </nav>
+
+    <!-- Hero Section -->
+    <section id="home" class="section hero">
+        <div class="container">
+            <h1>Modern Perspectives</h1>
+            <p>A Virtual Exhibition of Contemporary Art</p>
+            <a href="#artists" class="btn">View Exhibition</a>
+        </div>
+    </section>
+
+    <!-- Artists Section -->
+    <main id="artists">
+        <!-- Artist 1 -->
+        <section id="artist1" class="section gallery-section">
+            <div class="container">
+                <div class="artist-header">
+                    <h2>Elena Vasquez</h2>
+                    <p>Abstract Expressions</p>
+                </div>
+                
+                <div class="gallery-grid">
+                    <figure class="artwork">
+                        <div class="artwork-frame">
+                            <img src="https://images.unsplash.com/photo-1579783902614-a3fb3927b6a5?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=800&q=80" alt="Abstract composition in blue and gold tones">
+                        </div>
+                        <figcaption class="artwork-info">
+                            <h3 class="artwork-title">Azure Reverie</h3>
+                            <p>Oil on canvas, 2022</p>
+                        </figcaption>
+                    </figure>
+                    
+                    <figure class="artwork">
+                        <div class="artwork-frame">
+                            <img src="https://images.unsplash.com/photo-1579783900882-c0d3dad047c9?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=800&q=80" alt="Colorful abstract painting with geometric shapes">
+                        </div>
+                        <figcaption class="artwork-info">
+                            <h3 class="artwork-title">Geometric Dreams</h3>
+                            <p>Acrylic on canvas, 2021</p>
+                        </figcaption>
+                    </figure>
+                    
+                    <figure class="artwork">
+                        <div class="artwork-frame">
+                            <img src="https://images.unsplash.com/photo-1579783901586-d5f75a5ddfc5?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=800&q=80" alt="Abstract landscape with warm tones">
+                        </div>
+                        <figcaption class="artwork-info">
+                            <h3 class="artwork-title">Ember Landscape</h3>
+                            <p>Mixed media, 2023</p>
+                        </figcaption>
+                    </figure>
+                </div>
+                
+                <div class="artist-bio">
+                    <p>"My work explores the intersection of emotion and form, creating visual poetry that invites the viewer to find their own meaning in the abstract."</p>
+                </div>
+            </div>
+        </section>
+        
+        <!-- Artist 2 -->
+        <section id="artist2" class="section">
+            <div class="container">
+                <div class="artist-header">
+                    <h2>Marcus Chen</h2>
+                    <p>Urban Realism</p>
+                </div>
+                
+                <div class="gallery-grid">
+                    <figure class="artwork">
+                        <div class="artwork-frame">
+                            <img src="https://images.unsplash.com/photo-1543857778-c4a1a3e0b7eb?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=800&q=80" alt="Cityscape at night with neon lights">
+                        </div>
+                        <figcaption class="artwork-info">
+                            <h3 class="artwork-title">Neon Streets</h3>
+                            <p>Oil on canvas, 2022</p>
+                        </figcaption>
+                    </figure>
+                    
+                    <figure class="artwork">
+                        <div class="artwork-frame">
+                            <img src="https://images.unsplash.com/photo-1534447677768-be436bb09401?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=800&q=80" alt="Rainy city street with umbrellas">
+                        </div>
+                        <figcaption class="artwork-info">
+                            <h3 class="artwork-title">Metropolis Rain</h3>
+                            <p>Watercolor and ink, 2021</p>
+                        </figcaption>
+                    </figure>
+                    
+                    <figure class="artwork">
+                        <div class="artwork-frame">
+                            <img src="https://images.unsplash.com/photo-1499781350541-7783f6c6a0c8?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=800&q=80" alt="Subway station with commuters">
+                        </div>
+                        <figcaption class="artwork-info">
+                            <h3 class="artwork-title">Transit</h3>
+                            <p>Acrylic on board, 2020</p>
+                        </figcaption>
+                    </figure>
+                </div>
+                
+                <div class="artist-bio">
+                    <p>"I capture the pulse of the city - its energy, its people, and the stories hidden in plain sight on every street corner."</p>
+                </div>
+            </div>
+        </section>
+        
+        <!-- Artist 3 -->
+        <section id="artist3" class="section gallery-section">
+            <div class="container">
+                <div class="artist-header">
+                    <h2>Sophie Laurent</h2>
+                    <p>Surreal Visions</p>
+                </div>
+                
+                <div class="gallery-grid">
+                    <figure class="artwork">
+                        <div class="artwork-frame">
+                            <img src="https://images.unsplash.com/photo-1578301978018-300de54f5f4e?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=800&q=80" alt="Surreal portrait with floating elements">
+                        </div>
+                        <figcaption class="artwork-info">
+                            <h3 class="artwork-title">Fragmented Self</h3>
+                            <p>Digital art, 2023</p>
+                        </figcaption>
+                    </figure>
+                    
+                    <figure class="artwork">
+                        <div class="artwork-frame">
+                            <img src="https://images.unsplash.com/photo-1579783902369-15e0b6d7a5db?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=800&q=80" alt="Dreamlike landscape with impossible geometry">
+                        </div>
+                        <figcaption class="artwork-info">
+                            <h3 class="artwork-title">Impossible Horizons</h3>
+                            <p>Oil on canvas, 2022</p>
+                        </figcaption>
+                    </figure>
+                    
+                    <figure class="artwork">
+                        <div class="artwork-frame">
+                            <img src="https://images.unsplash.com/photo-1579783902511-e08a5e473533?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=800&q=80" alt="Surreal still life with melting objects">
+                        </div>
+                        <figcaption class="artwork-info">
+                            <h3 class="artwork-title">Temporal Still Life</h3>
+                            <p>Mixed media, 2021</p>
+                        </figcaption>
+                    </figure>
+                </div>
+                
+                <div class="artist-bio">
+                    <p>"My art exists in the space between dreams and reality, where the rules of physics and logic dissolve into pure imagination."</p>
+                </div>
+            </div>
+        </section>
+    </main>
+
+    <!-- About Section -->
+    <section id="about" class="section">
+        <div class="container">
+            <h2>About the Exhibition</h2>
+            <p>Modern Perspectives is a virtual gallery showcasing the work of contemporary artists who are pushing boundaries in their respective mediums. This exhibition brings together diverse voices and styles, united by their innovative approaches to art-making.</p>
+            <p>Founded in 2020, our mission is to make art accessible to everyone, regardless of geographical limitations. This digital space allows art lovers from around the world to experience these works as if they were standing in a physical gallery.</p>
+        </div>
+    </section>
+
+    <!-- Contact Section -->
+    <section id="contact" class="section">
+        <div class="container">
+            <h2>Contact Us</h2>
+            <p>For inquiries about the artists or artworks featured in this exhibition, please reach out to our curatorial team.</p>
+            <address>
+                <p>Email: <a href="mailto:info@modernperspectives.com">info@modernperspectives.com</a></p>
+                <p>Phone: +1 (555) 123-4567</p>
+            </address>
+        </div>
+    </section>
+
+    <!-- Footer -->
+    <footer class="footer">
+        <div class="container">
+            <h3>Modern Perspectives</h3>
+            <div class="social-links">
+                <a href="#" class="social-link" aria-label="Instagram">
+                    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                        <rect x="2" y="2" width="20" height="20" rx="5" ry="5"></rect>
+                        <path d="M16 11.37A4 4 0 1 1 12.63 8 4 4 0 0 1 16 11.37z"></path>
+                        <line x1="17.5" y1="6.5" x2="17.51" y2="6.5"></line>
+                    </svg>
+                </a>
+                <a href="#" class="social-link" aria-label="Twitter">
+                    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                        <path d="M23 3a10.9 10.9 0 0 1-3.14 1.53 4.48 4.48 0 0 0-7.86 3v1A10.66 10.66 0 0 1 3 4s-4 9 5 13a11.64 11.64 0 0 1-7 2c9 5 20 0 20-11.5a4.5 4.5 0 0 0-.08-.83A7.72 7.72 0 0 0 23 3z"></path>
+                    </svg>
+                </a>
+                <a href="#" class="social-link" aria-label="Facebook">
+                    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                        <path d="M18 2h-3a5 5 0 0 0-5 5v3H7v4h3v8h4v-8h3l1-4h-4V7a1 1 0 0 1 1-1h3z"></path>
+                    </svg>
+                </a>
+            </div>
+            <div class="footer-links">
+                <a href="#home" class="footer-link">Home</a>
+                <a href="#artists" class="footer-link">Artists</a>
+                <a href="#about" class="footer-link">About</a>
+                <a href="#contact" class="footer-link">Contact</a>
+            </div>
+            <p>&copy; 2023 Modern Perspectives. All rights reserved.</p>
+        </div>
+    </footer>
+</body>
+</html>
