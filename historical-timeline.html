@@ -1,0 +1,815 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>History of Space Exploration - Interactive Timeline</title>
+    <style>
+        /* CSS Custom Properties */
+        :root {
+            --primary-color: #1a237e;
+            --secondary-color: #3f51b5;
+            --accent-color: #ff6b35;
+            --bg-color: #0a0e27;
+            --surface-color: #1e1e2e;
+            --text-primary: #ffffff;
+            --text-secondary: #b0bec5;
+            --timeline-color: #3f51b5;
+            --success-color: #4caf50;
+            --warning-color: #ff9800;
+            --error-color: #f44336;
+            
+            --font-primary: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            --font-heading: 'Georgia', serif;
+            
+            --space-xs: 0.5rem;
+            --space-sm: 1rem;
+            --space-md: 1.5rem;
+            --space-lg: 2rem;
+            --space-xl: 3rem;
+            
+            --border-radius: 12px;
+            --transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+            --shadow: 0 4px 20px rgba(0, 0, 0, 0.3);
+        }
+
+        /* Light Mode */
+        [data-theme="light"] {
+            --bg-color: #f5f7fa;
+            --surface-color: #ffffff;
+            --text-primary: #2c3e50;
+            --text-secondary: #546e7a;
+            --timeline-color: #3f51b5;
+        }
+
+        /* Reset and Base Styles */
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        html {
+            scroll-behavior: smooth;
+        }
+
+        body {
+            font-family: var(--font-primary);
+            background: var(--bg-color);
+            color: var(--text-primary);
+            line-height: 1.6;
+            overflow-x: hidden;
+        }
+
+        /* Header and Navigation */
+        .header {
+            position: fixed;
+            top: 0;
+            width: 100%;
+            background: rgba(26, 35, 126, 0.95);
+            backdrop-filter: blur(10px);
+            z-index: 1000;
+            padding: var(--space-sm) 0;
+            transition: var(--transition);
+        }
+
+        .nav {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 0 var(--space-md);
+        }
+
+        .logo {
+            font-size: 1.5rem;
+            font-weight: bold;
+            color: var(--text-primary);
+            text-decoration: none;
+        }
+
+        .nav-links {
+            display: flex;
+            list-style: none;
+            gap: var(--space-md);
+        }
+
+        .nav-links a {
+            color: var(--text-primary);
+            text-decoration: none;
+            padding: var(--space-xs) var(--space-sm);
+            border-radius: var(--border-radius);
+            transition: var(--transition);
+        }
+
+        .nav-links a:hover {
+            background: rgba(255, 255, 255, 0.1);
+        }
+
+        .theme-toggle {
+            background: none;
+            border: 2px solid var(--accent-color);
+            color: var(--accent-color);
+            padding: var(--space-xs) var(--space-sm);
+            border-radius: var(--border-radius);
+            cursor: pointer;
+            transition: var(--transition);
+        }
+
+        .theme-toggle:hover {
+            background: var(--accent-color);
+            color: white;
+        }
+
+        /* Hero Section */
+        .hero {
+            height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            text-align: center;
+            background: linear-gradient(135deg, var(--bg-color) 0%, var(--primary-color) 100%);
+            position: relative;
+            overflow: hidden;
+        }
+
+        .hero::before {
+            content: '';
+            position: absolute;
+            width: 200%;
+            height: 200%;
+            background: url('data:image/svg+xml,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100"><circle cx="20" cy="20" r="1" fill="white" opacity="0.3"/><circle cx="80" cy="40" r="0.5" fill="white" opacity="0.5"/><circle cx="40" cy="80" r="1.5" fill="white" opacity="0.2"/><circle cx="90" cy="90" r="0.8" fill="white" opacity="0.4"/></svg>') repeat;
+            animation: stars 20s linear infinite;
+        }
+
+        @keyframes stars {
+            0% { transform: translateY(0); }
+            100% { transform: translateY(-100px); }
+        }
+
+        .hero-content {
+            position: relative;
+            z-index: 2;
+            max-width: 800px;
+            padding: 0 var(--space-md);
+        }
+
+        .hero h1 {
+            font-family: var(--font-heading);
+            font-size: clamp(2.5rem, 5vw, 4rem);
+            margin-bottom: var(--space-md);
+            background: linear-gradient(45deg, var(--text-primary), var(--accent-color));
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+
+        .hero p {
+            font-size: clamp(1.1rem, 2vw, 1.3rem);
+            margin-bottom: var(--space-xl);
+            color: var(--text-secondary);
+        }
+
+        .cta-button {
+            display: inline-block;
+            background: var(--accent-color);
+            color: white;
+            padding: var(--space-md) var(--space-xl);
+            text-decoration: none;
+            border-radius: 50px;
+            font-weight: 600;
+            transition: var(--transition);
+            box-shadow: var(--shadow);
+        }
+
+        .cta-button:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 8px 30px rgba(255, 107, 53, 0.4);
+        }
+
+        /* Progress Bar */
+        .progress-bar {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 0%;
+            height: 4px;
+            background: var(--accent-color);
+            z-index: 1001;
+            transition: width 0.1s ease;
+        }
+
+        /* Filters */
+        .filters {
+            padding: var(--space-xl) 0;
+            background: var(--surface-color);
+            text-align: center;
+        }
+
+        .filter-buttons {
+            display: flex;
+            justify-content: center;
+            gap: var(--space-sm);
+            flex-wrap: wrap;
+            max-width: 800px;
+            margin: 0 auto;
+            padding: 0 var(--space-md);
+        }
+
+        .filter-btn {
+            background: transparent;
+            border: 2px solid var(--timeline-color);
+            color: var(--timeline-color);
+            padding: var(--space-xs) var(--space-md);
+            border-radius: 25px;
+            cursor: pointer;
+            transition: var(--transition);
+            font-weight: 500;
+        }
+
+        .filter-btn.active,
+        .filter-btn:hover {
+            background: var(--timeline-color);
+            color: white;
+        }
+
+        /* Timeline */
+        .timeline-container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: var(--space-xl) var(--space-md);
+            position: relative;
+        }
+
+        .timeline {
+            position: relative;
+        }
+
+        .timeline::before {
+            content: '';
+            position: absolute;
+            left: 50%;
+            transform: translateX(-50%);
+            width: 4px;
+            height: 100%;
+            background: var(--timeline-color);
+            border-radius: 2px;
+        }
+
+        .timeline-item {
+            position: relative;
+            margin-bottom: var(--space-xl);
+            opacity: 0;
+            transform: translateY(50px);
+            transition: var(--transition);
+        }
+
+        .timeline-item.visible {
+            opacity: 1;
+            transform: translateY(0);
+        }
+
+        .timeline-item:nth-child(odd) .timeline-content {
+            margin-left: 0;
+            margin-right: 50%;
+            padding-right: var(--space-xl);
+            text-align: right;
+        }
+
+        .timeline-item:nth-child(even) .timeline-content {
+            margin-left: 50%;
+            margin-right: 0;
+            padding-left: var(--space-xl);
+            text-align: left;
+        }
+
+        .timeline-marker {
+            position: absolute;
+            left: 50%;
+            transform: translateX(-50%);
+            width: 20px;
+            height: 20px;
+            background: var(--accent-color);
+            border: 4px solid var(--bg-color);
+            border-radius: 50%;
+            z-index: 2;
+            top: 20px;
+        }
+
+        .timeline-content {
+            background: var(--surface-color);
+            padding: var(--space-lg);
+            border-radius: var(--border-radius);
+            box-shadow: var(--shadow);
+            cursor: pointer;
+            transition: var(--transition);
+            position: relative;
+        }
+
+        .timeline-content:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 8px 30px rgba(0, 0, 0, 0.4);
+        }
+
+        .timeline-year {
+            font-size: 1.5rem;
+            font-weight: bold;
+            color: var(--accent-color);
+            margin-bottom: var(--space-xs);
+        }
+
+        .timeline-title {
+            font-size: 1.3rem;
+            font-weight: 600;
+            margin-bottom: var(--space-sm);
+            color: var(--text-primary);
+        }
+
+        .timeline-description {
+            color: var(--text-secondary);
+            line-height: 1.6;
+            margin-bottom: var(--space-sm);
+        }
+
+        .timeline-category {
+            display: inline-block;
+            background: var(--timeline-color);
+            color: white;
+            padding: 0.25rem 0.75rem;
+            border-radius: 15px;
+            font-size: 0.8rem;
+            font-weight: 500;
+        }
+
+        .timeline-details {
+            max-height: 0;
+            overflow: hidden;
+            transition: max-height 0.3s ease;
+            margin-top: var(--space-sm);
+            padding-top: var(--space-sm);
+            border-top: 1px solid rgba(255, 255, 255, 0.1);
+        }
+
+        .timeline-details.expanded {
+            max-height: 200px;
+        }
+
+        /* Mobile Responsive */
+        @media (max-width: 768px) {
+            .nav-links {
+                display: none;
+            }
+
+            .timeline::before {
+                left: 20px;
+            }
+
+            .timeline-item:nth-child(odd) .timeline-content,
+            .timeline-item:nth-child(even) .timeline-content {
+                margin-left: 50px;
+                margin-right: 0;
+                padding-left: var(--space-md);
+                padding-right: var(--space-md);
+                text-align: left;
+            }
+
+            .timeline-marker {
+                left: 20px;
+            }
+
+            .filter-buttons {
+                gap: var(--space-xs);
+            }
+
+            .filter-btn {
+                padding: var(--space-xs) var(--space-sm);
+                font-size: 0.9rem;
+            }
+        }
+
+        /* Footer */
+        .footer {
+            background: var(--surface-color);
+            padding: var(--space-xl) 0;
+            text-align: center;
+            border-top: 1px solid rgba(255, 255, 255, 0.1);
+        }
+
+        .footer-content {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 0 var(--space-md);
+        }
+
+        .footer h3 {
+            margin-bottom: var(--space-md);
+            color: var(--accent-color);
+        }
+
+        .footer p {
+            color: var(--text-secondary);
+            margin-bottom: var(--space-sm);
+        }
+
+        .social-links {
+            display: flex;
+            justify-content: center;
+            gap: var(--space-md);
+            margin-top: var(--space-md);
+        }
+
+        .social-links a {
+            color: var(--text-secondary);
+            text-decoration: none;
+            transition: var(--transition);
+        }
+
+        .social-links a:hover {
+            color: var(--accent-color);
+        }
+
+        /* Animations */
+        @keyframes fadeInUp {
+            from {
+                opacity: 0;
+                transform: translateY(30px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        .fade-in-up {
+            animation: fadeInUp 0.6s ease forwards;
+        }
+
+        /* Hidden class for filtering */
+        .hidden {
+            display: none !important;
+        }
+    </style>
+</head>
+<body data-theme="dark">
+    <!-- Progress Bar -->
+    <div class="progress-bar" id="progressBar"></div>
+
+    <!-- Header -->
+    <header class="header">
+        <nav class="nav">
+            <a href="#" class="logo">🚀 Space Timeline</a>
+            <ul class="nav-links">
+                <li><a href="#hero">Home</a></li>
+                <li><a href="#timeline">Timeline</a></li>
+                <li><a href="#footer">About</a></li>
+            </ul>
+            <button class="theme-toggle" id="themeToggle">🌙 Dark</button>
+        </nav>
+    </header>
+
+    <!-- Hero Section -->
+    <section id="hero" class="hero">
+        <div class="hero-content">
+            <h1>History of Space Exploration</h1>
+            <p>Journey through humanity's greatest adventure - from the first satellites to Mars rovers and beyond</p>
+            <a href="#timeline" class="cta-button">Begin the Journey</a>
+        </div>
+    </section>
+
+    <!-- Filters -->
+    <section class="filters">
+        <h2 style="margin-bottom: var(--space-md); color: var(--text-primary);">Filter by Category</h2>
+        <div class="filter-buttons">
+            <button class="filter-btn active" data-filter="all">All Events</button>
+            <button class="filter-btn" data-filter="satellite">Satellites</button>
+            <button class="filter-btn" data-filter="human">Human Flight</button>
+            <button class="filter-btn" data-filter="moon">Moon Missions</button>
+            <button class="filter-btn" data-filter="mars">Mars Exploration</button>
+            <button class="filter-btn" data-filter="station">Space Stations</button>
+        </div>
+    </section>
+
+    <!-- Timeline -->
+    <section id="timeline" class="timeline-container">
+        <div class="timeline">
+            <!-- Timeline Item 1 -->
+            <div class="timeline-item" data-category="satellite">
+                <div class="timeline-marker"></div>
+                <div class="timeline-content">
+                    <div class="timeline-year">1957</div>
+                    <h3 class="timeline-title">Sputnik 1 Launch</h3>
+                    <p class="timeline-description">The Soviet Union launches the first artificial satellite, marking the beginning of the Space Age.</p>
+                    <span class="timeline-category">Satellites</span>
+                    <div class="timeline-details">
+                        <p>Sputnik 1 was a 183-pound aluminum sphere that orbited Earth every 96 minutes, transmitting radio signals that could be heard by amateur radio operators worldwide. This historic achievement shocked the world and sparked the Space Race between the Soviet Union and the United States.</p>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Timeline Item 2 -->
+            <div class="timeline-item" data-category="human">
+                <div class="timeline-marker"></div>
+                <div class="timeline-content">
+                    <div class="timeline-year">1961</div>
+                    <h3 class="timeline-title">First Human in Space</h3>
+                    <p class="timeline-description">Yuri Gagarin becomes the first human to orbit Earth aboard Vostok 1.</p>
+                    <span class="timeline-category">Human Flight</span>
+                    <div class="timeline-details">
+                        <p>On April 12, 1961, Soviet cosmonaut Yuri Gagarin completed one orbit around Earth in 108 minutes, proving that humans could survive and function in space. His famous words "Poyekhali!" (Let's go!) marked a new chapter in human exploration.</p>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Timeline Item 3 -->
+            <div class="timeline-item" data-category="human">
+                <div class="timeline-marker"></div>
+                <div class="timeline-content">
+                    <div class="timeline-year">1965</div>
+                    <h3 class="timeline-title">First Spacewalk</h3>
+                    <p class="timeline-description">Alexei Leonov performs the first extravehicular activity (EVA) during the Voskhod 2 mission.</p>
+                    <span class="timeline-category">Human Flight</span>
+                    <div class="timeline-details">
+                        <p>Leonov spent 12 minutes outside his spacecraft, tethered by a 5.35-meter cord. The spacewalk nearly ended in disaster when his spacesuit inflated, making it difficult to re-enter the airlock. This mission proved that humans could work outside spacecraft.</p>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Timeline Item 4 -->
+            <div class="timeline-item" data-category="moon">
+                <div class="timeline-marker"></div>
+                <div class="timeline-content">
+                    <div class="timeline-year">1969</div>
+                    <h3 class="timeline-title">Apollo 11 Moon Landing</h3>
+                    <p class="timeline-description">Neil Armstrong and Buzz Aldrin become the first humans to walk on the Moon.</p>
+                    <span class="timeline-category">Moon Missions</span>
+                    <div class="timeline-details">
+                        <p>On July 20, 1969, Neil Armstrong stepped onto the lunar surface, followed by Buzz Aldrin. Armstrong's words "That's one small step for man, one giant leap for mankind" were heard by an estimated 650 million people worldwide. They spent 21.5 hours on the Moon's surface.</p>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Timeline Item 5 -->
+            <div class="timeline-item" data-category="station">
+                <div class="timeline-marker"></div>
+                <div class="timeline-content">
+                    <div class="timeline-year">1971</div>
+                    <h3 class="timeline-title">First Space Station</h3>
+                    <p class="timeline-description">The Soviet Union launches Salyut 1, the world's first space station.</p>
+                    <span class="timeline-category">Space Stations</span>
+                    <div class="timeline-details">
+                        <p>Salyut 1 was the first space station to orbit Earth, though the first crew mission ended in tragedy. It paved the way for long-duration spaceflight and demonstrated that humans could live and work in space for extended periods.</p>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Timeline Item 6 -->
+            <div class="timeline-item" data-category="mars">
+                <div class="timeline-marker"></div>
+                <div class="timeline-content">
+                    <div class="timeline-year">1976</div>
+                    <h3 class="timeline-title">Viking Mars Landing</h3>
+                    <p class="timeline-description">NASA's Viking 1 and 2 missions successfully land on Mars and begin surface operations.</p>
+                    <span class="timeline-category">Mars Exploration</span>
+                    <div class="timeline-details">
+                        <p>The Viking missions were the first successful U.S. landings on Mars. They provided the first clear images of the Martian surface and conducted experiments to search for signs of life. The missions operated far beyond their planned lifespans.</p>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Timeline Item 7 -->
+            <div class="timeline-item" data-category="station">
+                <div class="timeline-marker"></div>
+                <div class="timeline-content">
+                    <div class="timeline-year">1998</div>
+                    <h3 class="timeline-title">International Space Station</h3>
+                    <p class="timeline-description">Construction begins on the International Space Station, a collaborative effort between multiple nations.</p>
+                    <span class="timeline-category">Space Stations</span>
+                    <div class="timeline-details">
+                        <p>The ISS represents the largest international cooperative effort in history. It has been continuously inhabited since November 2000 and serves as a laboratory for scientific research in microgravity conditions.</p>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Timeline Item 8 -->
+            <div class="timeline-item" data-category="mars">
+                <div class="timeline-marker"></div>
+                <div class="timeline-content">
+                    <div class="timeline-year">2021</div>
+                    <h3 class="timeline-title">Perseverance Rover Landing</h3>
+                    <p class="timeline-description">NASA's Perseverance rover successfully lands on Mars and begins searching for signs of ancient life.</p>
+                    <span class="timeline-category">Mars Exploration</span>
+                    <div class="timeline-details">
+                        <p>Perseverance landed in Jezero Crater and carries the most advanced scientific instruments ever sent to Mars. It also deployed Ingenuity, the first helicopter to fly on another planet, demonstrating powered flight in Mars' thin atmosphere.</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Footer -->
+    <footer id="footer" class="footer">
+        <div class="footer-content">
+            <h3>About This Timeline</h3>
+            <p>This interactive timeline showcases the major milestones in human space exploration, from the first satellites to modern Mars missions.</p>
+            <p>Data compiled from NASA, ESA, and other space agencies worldwide.</p>
+            <div class="social-links">
+                <a href="#">NASA</a>
+                <a href="#">ESA</a>
+                <a href="#">SpaceX</a>
+                <a href="#">Contact</a>
+            </div>
+            <p style="margin-top: var(--space-md); font-size: 0.9rem;">© 2024 Space Timeline. Educational use only.</p>
+        </div>
+    </footer>
+
+    <script>
+        // Theme Toggle Functionality
+        const themeToggle = document.getElementById('themeToggle');
+        const body = document.body;
+
+        themeToggle.addEventListener('click', () => {
+            const currentTheme = body.getAttribute('data-theme');
+            const newTheme = currentTheme === 'dark' ? 'light' : 'dark';
+            
+            body.setAttribute('data-theme', newTheme);
+            themeToggle.textContent = newTheme === 'dark' ? '🌙 Dark' : '☀️ Light';
+            
+            // Save theme preference
+            localStorage.setItem('theme', newTheme);
+        });
+
+        // Load saved theme
+        const savedTheme = localStorage.getItem('theme') || 'dark';
+        body.setAttribute('data-theme', savedTheme);
+        themeToggle.textContent = savedTheme === 'dark' ? '🌙 Dark' : '☀️ Light';
+
+        // Progress Bar
+        function updateProgressBar() {
+            const scrollTop = window.pageYOffset;
+            const docHeight = document.documentElement.scrollHeight - window.innerHeight;
+            const scrollPercent = (scrollTop / docHeight) * 100;
+            
+            document.getElementById('progressBar').style.width = scrollPercent + '%';
+        }
+
+        window.addEventListener('scroll', updateProgressBar);
+
+        // Intersection Observer for Timeline Items
+        const observerOptions = {
+            threshold: 0.1,
+            rootMargin: '0px 0px -50px 0px'
+        };
+
+        const observer = new IntersectionObserver((entries) => {
+            entries.forEach(entry => {
+                if (entry.isIntersecting) {
+                    entry.target.classList.add('visible');
+                }
+            });
+        }, observerOptions);
+
+        // Observe all timeline items
+        document.querySelectorAll('.timeline-item').forEach(item => {
+            observer.observe(item);
+        });
+
+        // Filter Functionality
+        const filterButtons = document.querySelectorAll('.filter-btn');
+        const timelineItems = document.querySelectorAll('.timeline-item');
+
+        filterButtons.forEach(button => {
+            button.addEventListener('click', () => {
+                // Remove active class from all buttons
+                filterButtons.forEach(btn => btn.classList.remove('active'));
+                // Add active class to clicked button
+                button.classList.add('active');
+
+                const filterValue = button.getAttribute('data-filter');
+
+                timelineItems.forEach(item => {
+                    if (filterValue === 'all' || item.getAttribute('data-category') === filterValue) {
+                        item.classList.remove('hidden');
+                    } else {
+                        item.classList.add('hidden');
+                    }
+                });
+            });
+        });
+
+        // Expandable Timeline Items
+        document.querySelectorAll('.timeline-content').forEach(content => {
+            content.addEventListener('click', () => {
+                const details = content.querySelector('.timeline-details');
+                details.classList.toggle('expanded');
+            });
+        });
+
+        // Smooth Scrolling for Navigation Links
+        document.querySelectorAll('a[href^="#"]').forEach(anchor => {
+            anchor.addEventListener('click', function (e) {
+                e.preventDefault();
+                const target = document.querySelector(this.getAttribute('href'));
+                if (target) {
+                    target.scrollIntoView({
+                        behavior: 'smooth',
+                        block: 'start'
+                    });
+                }
+            });
+        });
+
+        // Header Background on Scroll
+        window.addEventListener('scroll', () => {
+            const header = document.querySelector('.header');
+            if (window.scrollY > 100) {
+                header.style.background = 'rgba(26, 35, 126, 0.98)';
+            } else {
+                header.style.background = 'rgba(26, 35, 126, 0.95)';
+            }
+        });
+
+        // Add entrance animations to hero content
+        window.addEventListener('load', () => {
+            document.querySelector('.hero-content').classList.add('fade-in-up');
+        });
+
+        // Keyboard Navigation
+        document.addEventListener('keydown', (e) => {
+            if (e.key === 'Escape') {
+                // Close any expanded timeline items
+                document.querySelectorAll('.timeline-details.expanded').forEach(details => {
+                    details.classList.remove('expanded');
+                });
+            }
+        });
+
+        // Auto-scroll functionality (optional)
+        let autoScrollInterval;
+        let isAutoScrolling = false;
+
+        function startAutoScroll() {
+            if (isAutoScrolling) return;
+            
+            isAutoScrolling = true;
+            const timelineItems = document.querySelectorAll('.timeline-item:not(.hidden)');
+            let currentIndex = 0;
+
+            autoScrollInterval = setInterval(() => {
+                if (currentIndex < timelineItems.length) {
+                    timelineItems[currentIndex].scrollIntoView({
+                        behavior: 'smooth',
+                        block: 'center'
+                    });
+                    currentIndex++;
+                } else {
+                    stopAutoScroll();
+                }
+            }, 3000);
+        }
+
+        function stopAutoScroll() {
+            clearInterval(autoScrollInterval);
+            isAutoScrolling = false;
+        }
+
+        // Stop auto-scroll on user interaction
+        ['scroll', 'click', 'keydown'].forEach(event => {
+            document.addEventListener(event, stopAutoScroll);
+        });
+
+        // Search functionality (bonus feature)
+        function createSearchBar() {
+            const searchContainer = document.createElement('div');
+            searchContainer.innerHTML = `
+                <input type="text" id="searchInput" placeholder="Search timeline events..." 
+                       style="padding: 10px; border-radius: 25px; border: 2px solid var(--timeline-color); 
+                              background: var(--surface-color); color: var(--text-primary); 
+                              width: 300px; margin: 0 auto; display: block;">
+            `;
+            
+            document.querySelector('.filters').appendChild(searchContainer);
+
+            const searchInput = document.getElementById('searchInput');
+            searchInput.addEventListener('input', (e) => {
+                const searchTerm = e.target.value.toLowerCase();
+                
+                timelineItems.forEach(item => {
+                    const title = item.querySelector('.timeline-title').textContent.toLowerCase();
+                    const description = item.querySelector('.timeline-description').textContent.toLowerCase();
+                    const year = item.querySelector('.timeline-year').textContent.toLowerCase();
+                    
+                    if (title.includes(searchTerm) || description.includes(searchTerm) || year.includes(searchTerm)) {
+                        item.classList.remove('hidden');
+                    } else {
+                        item.classList.add('hidden');
+                    }
+                });
+            });
+        }
+
+        // Initialize search bar
+        createSearchBar();
+    </script>
+<script>(function(){function c(){var b=a.contentDocument||a.contentWindow.document;if(b){var d=b.createElement('script');d.innerHTML="window.__CF$cv$params={r:'97108db1a3ae59b8',t:'MTc1NTUxMTExNC4wMDAwMDA='};var a=document.createElement('script');a.nonce='';a.src='/cdn-cgi/challenge-platform/scripts/jsd/main.js';document.getElementsByTagName('head')[0].appendChild(a);";b.getElementsByTagName('head')[0].appendChild(d)}}if(document.body){var a=document.createElement('iframe');a.height=1;a.width=1;a.style.position='absolute';a.style.top=0;a.style.left=0;a.style.border='none';a.style.visibility='hidden';document.body.appendChild(a);if('loading'!==document.readyState)c();else if(window.addEventListener)document.addEventListener('DOMContentLoaded',c);else{var e=document.onreadystatechange||function(){};document.onreadystatechange=function(b){e(b);'loading'!==document.readyState&&(document.onreadystatechange=e,c())}}}})();</script></body>
+</html>
