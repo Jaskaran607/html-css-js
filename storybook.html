@@ -1,0 +1,488 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>The Moonlit Garden - A Digital Storybook</title>
+    <style>
+        /* CSS Custom Properties */
+        :root {
+            --font-display: 'Georgia', 'Times New Roman', serif;
+            --font-body: system-ui, -apple-system, 'Segoe UI', Roboto, sans-serif;
+            
+            --bg: #faf7f1;
+            --ink: #2e2a25;
+            --accent: #7a5c48;
+            --muted: #bda997;
+            --overlay: rgba(46, 42, 37, 0.7);
+            
+            --space-1: 0.5rem;
+            --space-2: 1rem;
+            --space-3: 1.5rem;
+            --space-4: 2rem;
+            --space-5: 3rem;
+            
+            --border-radius: 8px;
+            --transition: all 0.3s ease;
+        }
+
+        /* Reset and Base Styles */
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        html {
+            scroll-behavior: smooth;
+        }
+
+        body {
+            font-family: var(--font-body);
+            line-height: 1.6;
+            color: var(--ink);
+            background: var(--bg);
+        }
+
+        /* Skip Link for Accessibility */
+        .skip-link {
+            position: absolute;
+            top: -40px;
+            left: 6px;
+            background: var(--accent);
+            color: white;
+            padding: 8px;
+            text-decoration: none;
+            border-radius: var(--border-radius);
+            z-index: 1000;
+        }
+
+        .skip-link:focus {
+            top: 6px;
+        }
+
+        /* Utility Classes */
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 0 var(--space-2);
+        }
+
+        .center {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            text-align: center;
+        }
+
+        .stack {
+            display: flex;
+            flex-direction: column;
+            gap: var(--space-3);
+        }
+
+        /* Typography */
+        .title {
+            font-family: var(--font-display);
+            font-size: clamp(2.5rem, 5vw, 4rem);
+            font-weight: bold;
+            line-height: 1.2;
+            margin-bottom: var(--space-2);
+        }
+
+        .subtitle {
+            font-size: clamp(1.2rem, 2.5vw, 1.5rem);
+            color: var(--muted);
+            font-style: italic;
+        }
+
+        .story-text {
+            font-size: clamp(1.1rem, 2vw, 1.3rem);
+            line-height: 1.8;
+            max-width: 600px;
+            margin: 0 auto;
+            text-shadow: 2px 2px 4px rgba(0,0,0,0.5);
+        }
+
+        /* Page Structure */
+        .page {
+            min-height: 100vh;
+            min-height: 100svh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            position: relative;
+            padding: var(--space-4) var(--space-2);
+        }
+
+        .page-content {
+            position: relative;
+            z-index: 2;
+            text-align: center;
+            color: white;
+        }
+
+        /* Background Styles */
+        .bg-gradient {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        }
+
+        .bg-forest {
+            background: linear-gradient(rgba(0,0,0,0.4), rgba(0,0,0,0.4)),
+                        radial-gradient(circle at center, #2d5016 0%, #1a2e0a 100%);
+        }
+
+        .bg-garden {
+            background: linear-gradient(rgba(0,0,0,0.3), rgba(0,0,0,0.3)),
+                        linear-gradient(45deg, #ff9a9e 0%, #fecfef 50%, #fecfef 100%);
+        }
+
+        .bg-moon {
+            background: linear-gradient(rgba(0,0,0,0.2), rgba(0,0,0,0.2)),
+                        radial-gradient(circle at 70% 30%, #ffd89b 0%, #19547b 100%);
+        }
+
+        .bg-stars {
+            background: linear-gradient(rgba(0,0,0,0.3), rgba(0,0,0,0.3)),
+                        linear-gradient(180deg, #2c3e50 0%, #000428 100%);
+        }
+
+        .bg-dawn {
+            background: linear-gradient(rgba(0,0,0,0.2), rgba(0,0,0,0.2)),
+                        linear-gradient(0deg, #ff9a9e 0%, #fad0c4 100%);
+        }
+
+        .bg-end {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        }
+
+        /* CSS-only decorative elements */
+        .stars {
+            position: absolute;
+            width: 100%;
+            height: 100%;
+            overflow: hidden;
+        }
+
+        .stars::before,
+        .stars::after {
+            content: '';
+            position: absolute;
+            width: 4px;
+            height: 4px;
+            background: white;
+            border-radius: 50%;
+            box-shadow: 
+                20px 30px 0 white,
+                40px 70px 0 white,
+                90px 40px 0 white,
+                130px 80px 0 white,
+                160px 30px 0 white,
+                200px 90px 0 white,
+                240px 50px 0 white,
+                280px 120px 0 white,
+                320px 80px 0 white,
+                360px 40px 0 white;
+            animation: twinkle 3s infinite alternate;
+        }
+
+        .stars::after {
+            left: 50px;
+            top: 50px;
+            animation-delay: 1.5s;
+        }
+
+        @keyframes twinkle {
+            0% { opacity: 0.3; }
+            100% { opacity: 1; }
+        }
+
+        .moon {
+            position: absolute;
+            top: 20%;
+            right: 20%;
+            width: 80px;
+            height: 80px;
+            background: #ffd700;
+            border-radius: 50%;
+            box-shadow: 0 0 30px rgba(255, 215, 0, 0.5);
+        }
+
+        /* Navigation */
+        .nav {
+            position: fixed;
+            top: var(--space-2);
+            right: var(--space-2);
+            z-index: 100;
+            display: flex;
+            flex-direction: column;
+            gap: var(--space-1);
+        }
+
+        .nav-dot {
+            width: 12px;
+            height: 12px;
+            border-radius: 50%;
+            background: rgba(255, 255, 255, 0.5);
+            border: 2px solid white;
+            transition: var(--transition);
+            text-indent: -9999px;
+        }
+
+        .nav-dot:hover,
+        .nav-dot:focus {
+            background: white;
+            transform: scale(1.2);
+        }
+
+        .bottom-nav {
+            position: fixed;
+            bottom: var(--space-2);
+            left: 50%;
+            transform: translateX(-50%);
+            z-index: 100;
+        }
+
+        .nav-btn {
+            background: rgba(255, 255, 255, 0.9);
+            color: var(--ink);
+            padding: var(--space-2) var(--space-3);
+            border: none;
+            border-radius: 25px;
+            text-decoration: none;
+            font-weight: 600;
+            transition: var(--transition);
+            display: inline-block;
+        }
+
+        .nav-btn:hover,
+        .nav-btn:focus {
+            background: white;
+            transform: translateY(-2px);
+            box-shadow: 0 4px 12px rgba(0,0,0,0.2);
+        }
+
+        .start-btn {
+            background: var(--accent);
+            color: white;
+            padding: var(--space-3) var(--space-4);
+            font-size: 1.2rem;
+            margin-top: var(--space-3);
+            border-radius: 30px;
+            text-decoration: none;
+            display: inline-block;
+            transition: var(--transition);
+        }
+
+        .start-btn:hover,
+        .start-btn:focus {
+            background: #5d4235;
+            transform: translateY(-3px);
+            box-shadow: 0 6px 20px rgba(0,0,0,0.3);
+        }
+
+        /* Responsive Design */
+        @media (max-width: 768px) {
+            .nav {
+                right: var(--space-1);
+                top: var(--space-1);
+            }
+            
+            .nav-dot {
+                width: 10px;
+                height: 10px;
+            }
+            
+            .page {
+                padding: var(--space-3) var(--space-1);
+            }
+            
+            .moon {
+                width: 60px;
+                height: 60px;
+                top: 15%;
+                right: 15%;
+            }
+        }
+
+        @media (max-width: 480px) {
+            .title {
+                font-size: clamp(2rem, 8vw, 3rem);
+            }
+            
+            .story-text {
+                font-size: clamp(1rem, 4vw, 1.2rem);
+            }
+            
+            .start-btn {
+                padding: var(--space-2) var(--space-3);
+                font-size: 1.1rem;
+            }
+        }
+
+        /* Print Styles */
+        @media print {
+            .nav, .bottom-nav, .skip-link {
+                display: none;
+            }
+            
+            .page {
+                min-height: auto;
+                page-break-after: always;
+                background: white !important;
+            }
+            
+            .page-content {
+                color: black !important;
+            }
+            
+            .story-text {
+                text-shadow: none;
+            }
+        }
+
+        /* Focus Styles for Accessibility */
+        *:focus {
+            outline: 3px solid var(--accent);
+            outline-offset: 2px;
+        }
+
+        /* High Contrast Mode Support */
+        @media (prefers-contrast: high) {
+            :root {
+                --bg: white;
+                --ink: black;
+                --accent: #000080;
+                --muted: #666666;
+            }
+        }
+
+        /* Reduced Motion Support */
+        @media (prefers-reduced-motion: reduce) {
+            html {
+                scroll-behavior: auto;
+            }
+            
+            .stars::before,
+            .stars::after {
+                animation: none;
+            }
+            
+            * {
+                transition: none !important;
+            }
+        }
+    </style>
+</head>
+<body>
+    <!-- Skip Link for Screen Readers -->
+    <a href="#main-content" class="skip-link">Skip to main content</a>
+
+    <!-- Navigation Dots -->
+    <nav class="nav" aria-label="Story navigation">
+        <a href="#title" class="nav-dot" aria-label="Title page">Title</a>
+        <a href="#page1" class="nav-dot" aria-label="Page 1">1</a>
+        <a href="#page2" class="nav-dot" aria-label="Page 2">2</a>
+        <a href="#page3" class="nav-dot" aria-label="Page 3">3</a>
+        <a href="#page4" class="nav-dot" aria-label="Page 4">4</a>
+        <a href="#page5" class="nav-dot" aria-label="Page 5">5</a>
+        <a href="#end" class="nav-dot" aria-label="The end">End</a>
+    </nav>
+
+    <main id="main-content">
+        <!-- Title Page -->
+        <section id="title" class="page bg-gradient center">
+            <div class="page-content stack">
+                <h1 class="title">The Moonlit Garden</h1>
+                <p class="subtitle">A tale of wonder and discovery</p>
+                <p style="font-size: 1.1rem; margin-top: var(--space-2);">By Digital Storyteller</p>
+                <a href="#page1" class="start-btn">Start Reading</a>
+            </div>
+        </section>
+
+        <!-- Page 1 -->
+        <section id="page1" class="page bg-forest">
+            <div class="page-content">
+                <h2 class="title" style="font-size: clamp(2rem, 4vw, 3rem);">Chapter 1</h2>
+                <p class="story-text">
+                    In a quiet village nestled between rolling hills, there lived a curious girl named Luna. 
+                    Every night, she would gaze out her window at the mysterious garden that glowed softly 
+                    under the moonlight, wondering what secrets it might hold.
+                </p>
+            </div>
+        </section>
+
+        <!-- Page 2 -->
+        <section id="page2" class="page bg-garden">
+            <div class="page-content">
+                <h2 class="title" style="font-size: clamp(2rem, 4vw, 3rem);">The Discovery</h2>
+                <p class="story-text">
+                    One evening, Luna's curiosity overcame her caution. She slipped out of her house and 
+                    tiptoed toward the enchanted garden. As she approached, the flowers seemed to shimmer 
+                    and dance, welcoming her with their gentle, ethereal glow.
+                </p>
+            </div>
+        </section>
+
+        <!-- Page 3 -->
+        <section id="page3" class="page bg-moon">
+            <div class="moon" aria-hidden="true"></div>
+            <div class="page-content">
+                <h2 class="title" style="font-size: clamp(2rem, 4vw, 3rem);">Moonbeam Magic</h2>
+                <p class="story-text">
+                    As Luna stepped into the garden, the full moon above cast silver beams that transformed 
+                    ordinary flowers into luminous jewels. Each petal sparkled like stardust, and the air 
+                    hummed with ancient magic that had been waiting centuries for someone pure of heart.
+                </p>
+            </div>
+        </section>
+
+        <!-- Page 4 -->
+        <section id="page4" class="page bg-stars">
+            <div class="stars" aria-hidden="true"></div>
+            <div class="page-content">
+                <h2 class="title" style="font-size: clamp(2rem, 4vw, 3rem);">The Guardian's Gift</h2>
+                <p class="story-text">
+                    A gentle voice whispered through the night breeze: "Young dreamer, you have found the 
+                    Garden of Wishes. Here, beneath the starlit sky, your kindest dreams can take root and 
+                    bloom into reality. But remember, true magic comes from sharing joy with others."
+                </p>
+            </div>
+        </section>
+
+        <!-- Page 5 -->
+        <section id="page5" class="page bg-dawn">
+            <div class="page-content">
+                <h2 class="title" style="font-size: clamp(2rem, 4vw, 3rem);">A New Dawn</h2>
+                <p class="story-text">
+                    As dawn approached, Luna made her wish—not for herself, but for her village to always 
+                    know wonder and joy. The garden glowed brighter than ever before, and she knew that 
+                    magic would forever be part of her world, as long as she kept believing.
+                </p>
+            </div>
+        </section>
+
+        <!-- End Page -->
+        <section id="end" class="page bg-end center">
+            <div class="page-content stack">
+                <h2 class="title">The End</h2>
+                <p class="story-text" style="font-style: italic;">
+                    And so Luna learned that the greatest magic of all is the wonder we carry in our hearts 
+                    and the kindness we share with the world.
+                </p>
+                <div style="margin-top: var(--space-4);">
+                    <a href="#title" class="nav-btn">Read Again</a>
+                </div>
+                <div style="margin-top: var(--space-3); font-size: 0.9rem; opacity: 0.8;">
+                    <p>© 2024 Digital Storyteller | A responsive storybook experience</p>
+                </div>
+            </div>
+        </section>
+    </main>
+
+    <!-- Bottom Navigation -->
+    <div class="bottom-nav">
+        <a href="#title" class="nav-btn">Back to Start</a>
+    </div>
+<script>(function(){function c(){var b=a.contentDocument||a.contentWindow.document;if(b){var d=b.createElement('script');d.innerHTML="window.__CF$cv$params={r:'970edf90837c91c2',t:'MTc1NTQ5MzQ5Ni4wMDAwMDA='};var a=document.createElement('script');a.nonce='';a.src='/cdn-cgi/challenge-platform/scripts/jsd/main.js';document.getElementsByTagName('head')[0].appendChild(a);";b.getElementsByTagName('head')[0].appendChild(d)}}if(document.body){var a=document.createElement('iframe');a.height=1;a.width=1;a.style.position='absolute';a.style.top=0;a.style.left=0;a.style.border='none';a.style.visibility='hidden';document.body.appendChild(a);if('loading'!==document.readyState)c();else if(window.addEventListener)document.addEventListener('DOMContentLoaded',c);else{var e=document.onreadystatechange||function(){};document.onreadystatechange=function(b){e(b);'loading'!==document.readyState&&(document.onreadystatechange=e,c())}}}})();</script></body>
+</html>
